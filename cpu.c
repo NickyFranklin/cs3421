@@ -72,15 +72,37 @@ void cpu_dump(CPU cpu) {
   printf("RF: 0x%X\n", cpu.regs[5]);
   printf("RG: 0x%X\n", cpu.regs[6]);
   printf("RH: 0x%X\n", cpu.regs[7]);
+  printf("\n");
 }
 
 bool cpu_parse(File *infile, CPU cpu) {
   char str[40];
-  if(scanf(infile, "%s", str) == 1) {
+  if(scanf(infile, "%s", &str) == 1) {
+
+    if(strcmp(str, "reset") == 0) {
+      cpu.reset(cpu);
+      return true;
+    }
+    
+    if(strcmp(str, "dump")) {
+      cpu.dump(cpu);
+      return true;
+    }
+    
     if(strcmp(str, "set") == 0) {
-      
+      if(scanf(infile, "%s", &str) == 1) {
+	if(strcmp(str, "reg") == 0) {
+	  char *parseReg[2];
+	  uint8_t hexByte;
+	  if(scanf(infile, "%s %X", &parseReg, &hexByte) == 2) {
+	    cpu.setReg(parseReg, hexByte, cpu);
+            return true;
+	  }
+	}
+      }
     }
   } 
+  
 }
 
 void cpuDoCycleWork() {
