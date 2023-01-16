@@ -7,4 +7,3 @@ struct CPU {
 
 void reset();
 void setReg(char *reg, uint8_t hexByte);
-void dump();
