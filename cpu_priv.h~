@@ -1,0 +1,7 @@
+struct Cpu {
+  Unsigned char *regs[9];
+  Bool hasBeenInitialized;
+  Bool waitingOnMemory;
+};
+
+cpu_read_complete();
