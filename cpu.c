@@ -2,11 +2,11 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "cpu.h"
 #include "cpu_priv.h"
+#include "cpu.h"
 #include <string.h>
 
-void init(CPU cpu) {
+void init(struct CPU cpu) {
   for(int i = 0; i < 8; i++) {
     cpu.regs[i] = 0;
   }
@@ -15,14 +15,14 @@ void init(CPU cpu) {
   cpu.waitingOnMemory = false;
 }
 
-void reset(CPU cpu) {
+void reset(struct CPU cpu) {
   for(int i = 0; i < 8; i++) {
     cpu.regs[i] = 0;
   }
   cpu.PC = 0;
 }
 
-void setReg(char *reg, uint8_t hexByte, CPU cpu) {
+void setReg(char *reg, uint8_t hexByte, struct CPU cpu) {
   if(!strcmp(reg, "RA")) {
     cpu.regs[0] = hexByte;
   }
@@ -61,7 +61,7 @@ void setReg(char *reg, uint8_t hexByte, CPU cpu) {
   
 }
 
-void cpu_dump(CPU cpu) {
+void cpu_dump(struct CPU cpu) {
   printf("PC: 0x%X\n", cpu.PC);
   printf("RA: 0x%X\n", cpu.regs[0]);
   printf("RB: 0x%X\n", cpu.regs[1]);
@@ -74,9 +74,9 @@ void cpu_dump(CPU cpu) {
   printf("\n");
 }
 
-bool cpu_parse(File *infile, CPU cpu) {
-  char str[40];
-  if(fscanf(infile, "%s", &str) == 1) {
+bool cpu_parse(FILE *infile, struct CPU cpu) {
+  char str[20];
+  if(fscanf(infile, "%s", str) == 1) {
 
     if(strcmp(str, "reset") == 0) {
       reset(cpu);
@@ -84,16 +84,16 @@ bool cpu_parse(File *infile, CPU cpu) {
     }
     
     if(strcmp(str, "dump")) {
-      dump(cpu);
+      cpu_dump(cpu);
       return true;
     }
     
     if(strcmp(str, "set") == 0) {
-      if(fscanf(infile, "%s", &str) == 1) {
+      if(fscanf(infile, "%s", str) == 1) {
 	if(strcmp(str, "reg") == 0) {
-	  char *parseReg[2];
+	  char parseReg[3];
 	  uint8_t hexByte;
-	  if(fscanf(infile, "%s %X", &parseReg, &hexByte) == 2) {
+	  if(fscanf(infile, "%s %hhX", parseReg, &hexByte) == 2) {
 	    setReg(parseReg, hexByte, cpu);
             return true;
 	  }
@@ -101,18 +101,18 @@ bool cpu_parse(File *infile, CPU cpu) {
       }
     }
   } 
-  
+  return false;  
 }
 
 void cpuDoCycleWork() {
   uint8_t fetchByte;
   bool fetchDone;
-  memStartFetch(cpu.PC, 1, &fetchByte, &fetchDone);
+  // memStartFetch(cpu.PC, 1, &fetchByte, &fetchDone);
 }
 
 int main(int argc, char* argv[]) {
   struct CPU cpu;
   init(cpu);
-  dump(cpu);
+  cpu_dump(cpu);
   return 0;
 }
