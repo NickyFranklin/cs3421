@@ -6,7 +6,6 @@
 #include "cpu_priv.h"
 #include <string.h>
 
-
 void init(CPU cpu) {
   for(int i = 0; i < 8; i++) {
     cpu.regs[i] = 0;
@@ -77,25 +76,25 @@ void cpu_dump(CPU cpu) {
 
 bool cpu_parse(File *infile, CPU cpu) {
   char str[40];
-  if(scanf(infile, "%s", &str) == 1) {
+  if(fscanf(infile, "%s", &str) == 1) {
 
     if(strcmp(str, "reset") == 0) {
-      cpu.reset(cpu);
+      reset(cpu);
       return true;
     }
     
     if(strcmp(str, "dump")) {
-      cpu.dump(cpu);
+      dump(cpu);
       return true;
     }
     
     if(strcmp(str, "set") == 0) {
-      if(scanf(infile, "%s", &str) == 1) {
+      if(fscanf(infile, "%s", &str) == 1) {
 	if(strcmp(str, "reg") == 0) {
 	  char *parseReg[2];
 	  uint8_t hexByte;
-	  if(scanf(infile, "%s %X", &parseReg, &hexByte) == 2) {
-	    cpu.setReg(parseReg, hexByte, cpu);
+	  if(fscanf(infile, "%s %X", &parseReg, &hexByte) == 2) {
+	    setReg(parseReg, hexByte, cpu);
             return true;
 	  }
 	}
@@ -109,4 +108,11 @@ void cpuDoCycleWork() {
   uint8_t fetchByte;
   bool fetchDone;
   memStartFetch(cpu.PC, 1, &fetchByte, &fetchDone);
+}
+
+int main(int argc, char* argv[]) {
+  struct CPU cpu;
+  init(cpu);
+  dump(cpu);
+  return 0;
 }

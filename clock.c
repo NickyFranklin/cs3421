@@ -20,7 +20,7 @@ void tick(int ticks, Clock clock) {
 
 bool clock_parse(File *infile, Clock clock) {
   char str[40];
-  if(scanf(infile, "%s", &str) == 1) {
+  if(fscanf(infile, "%s", &str) == 1) {
     if(strcmp(str, "reset") == 0) {
       clock.reset(Clock clock);
       return true;
@@ -28,7 +28,7 @@ bool clock_parse(File *infile, Clock clock) {
 
     if(strcmp(str, "tick") == 0) {
       int ticks;
-      if(scanf(infile, "%d", &ticks) == 1) {
+      if(fscanf(infile, "%d", &ticks) == 1) {
 	clock.tick(ticks, Clock clock);
 	return true;
       }

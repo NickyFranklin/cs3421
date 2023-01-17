@@ -5,6 +5,6 @@ struct CPU {
   bool waitingOnMemory;
 };
 
-void reset(CPU cpu);
-void setReg(char *reg, uint8_t hexByte, CPU cpu);
-void init(CPU cpu);
+void reset();
+void setReg();
+void init();
