@@ -115,5 +115,17 @@ int main(int argc, char* argv[]) {
   struct CPU cpu;
   init(&cpu);
   cpu_dump(&cpu);
+  setReg("RA", 0xA6, &cpu);
+  setReg("RB", 0xFF, &cpu);
+  setReg("RC", 0xC2, &cpu);
+  setReg("RD", 0xAB, &cpu);
+  setReg("RE", 0x96, &cpu);
+  setReg("RF", 0x42, &cpu);
+  setReg("RG", 0x55, &cpu);
+  setReg("RH", 0xA6, &cpu);
+  setReg("RA", 0xB4, &cpu);
+  cpu_dump(&cpu);
+  reset(&cpu);
+  cpu_dump(&cpu);
   return 0;
 }
