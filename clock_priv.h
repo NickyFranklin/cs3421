@@ -2,7 +2,6 @@ struct Clock {
   uint16_t counter;
 };
 
-void reset();
-void tick(int ticks);
-void init();
-bool clock_parse(File *infile);
+void reset(struct Clock *clock);
+void tick(int ticks, struct Clock *clock);
+void init(struct Clock *clock);
