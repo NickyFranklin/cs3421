@@ -6,75 +6,76 @@
 #include "cpu.h"
 #include <string.h>
 
-void init(struct CPU cpu) {
+void init(struct CPU* cpu) {
   for(int i = 0; i < 8; i++) {
-    cpu.regs[i] = 0;
+    cpu->regs[i] = 0;
   }
-  cpu.PC = 0;
-  cpu.hasBeenInitialized = true;
-  cpu.waitingOnMemory = false;
+  cpu->PC = 0;
+  cpu->hasBeenInitialized = true;
+  cpu->waitingOnMemory = false;
 }
 
-void reset(struct CPU cpu) {
+void reset(struct CPU* cpu) {
   for(int i = 0; i < 8; i++) {
-    cpu.regs[i] = 0;
+    cpu->regs[i] = 0;
   }
-  cpu.PC = 0;
+  cpu->PC = 0;
+  
 }
 
-void setReg(char *reg, uint8_t hexByte, struct CPU cpu) {
+void setReg(char *reg, uint8_t hexByte, struct CPU* cpu) {
   if(!strcmp(reg, "RA")) {
-    cpu.regs[0] = hexByte;
+    cpu->regs[0] = hexByte;
   }
   
   else if(!strcmp(reg, "RB")) {
-    cpu.regs[1] = hexByte;
+    cpu->regs[1] = hexByte;
   }
 
   else if(!strcmp(reg, "RC")) {
-    cpu.regs[2] = hexByte; 
+    cpu->regs[2] = hexByte; 
   }
 
   else if(!strcmp(reg, "RD")) {
-    cpu.regs[3] = hexByte;
+    cpu->regs[3] = hexByte;
   }
 
   else if(!strcmp(reg, "RE")) {
-    cpu.regs[4] = hexByte;
+    cpu->regs[4] = hexByte;
   }
 
   else if(!strcmp(reg, "RF")) {
-    cpu.regs[5] = hexByte;
+    cpu->regs[5] = hexByte;
   }
 
   else if(!strcmp(reg, "RG")) {
-    cpu.regs[6] = hexByte;
+    cpu->regs[6] = hexByte;
   }
 
   else if(!strcmp(reg, "RH")) {
-    cpu.regs[7] = hexByte;
+    cpu->regs[7] = hexByte;
   }
 
   else if(!strcmp(reg, "PC")) {
-    cpu.PC = 0;
+    cpu->PC = 0;
   }
   
 }
 
-void cpu_dump(struct CPU cpu) {
-  printf("PC: 0x%X\n", cpu.PC);
-  printf("RA: 0x%X\n", cpu.regs[0]);
-  printf("RB: 0x%X\n", cpu.regs[1]);
-  printf("RC: 0x%X\n", cpu.regs[2]);
-  printf("RD: 0x%X\n", cpu.regs[3]);
-  printf("RE: 0x%X\n", cpu.regs[4]);
-  printf("RF: 0x%X\n", cpu.regs[5]);
-  printf("RG: 0x%X\n", cpu.regs[6]);
-  printf("RH: 0x%X\n", cpu.regs[7]);
+void cpu_dump(struct CPU *cpu) {
+  printf("PC: 0x%X\n", cpu->PC);
+  printf("RA: 0x%X\n", cpu->regs[0]);
+  printf("RB: 0x%X\n", cpu->regs[1]);
+  printf("RC: 0x%X\n", cpu->regs[2]);
+  printf("RD: 0x%X\n", cpu->regs[3]);
+  printf("RE: 0x%X\n", cpu->regs[4]);
+  printf("RF: 0x%X\n", cpu->regs[5]);
+  printf("RG: 0x%X\n", cpu->regs[6]);
+  printf("RH: 0x%X\n", cpu->regs[7]);
   printf("\n");
 }
 
-bool cpu_parse(FILE *infile, struct CPU cpu) {
+bool cpu_parse(FILE *infile, struct CPU *cpu) {
   char str[20];
   if(fscanf(infile, "%s", str) == 1) {
 
@@ -112,7 +113,7 @@ void cpuDoCycleWork() {
 
 int main(int argc, char* argv[]) {
   struct CPU cpu;
-  init(cpu);
-  cpu_dump(cpu);
+  init(&cpu);
+  cpu_dump(&cpu);
   return 0;
 }
