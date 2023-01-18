@@ -53,6 +53,8 @@ int main() {
   clock_dump(&clock);
   tick(5, &clock);
   clock_dump(&clock);
+  reset(&clock);
+  clock_dump(&clock);
 }
 
 

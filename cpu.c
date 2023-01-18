@@ -63,15 +63,15 @@ void setReg(char *reg, uint8_t hexByte, struct CPU* cpu) {
 }
 
 void cpu_dump(struct CPU *cpu) {
-  printf("PC: 0x%X\n", cpu->PC);
-  printf("RA: 0x%X\n", cpu->regs[0]);
-  printf("RB: 0x%X\n", cpu->regs[1]);
-  printf("RC: 0x%X\n", cpu->regs[2]);
-  printf("RD: 0x%X\n", cpu->regs[3]);
-  printf("RE: 0x%X\n", cpu->regs[4]);
-  printf("RF: 0x%X\n", cpu->regs[5]);
-  printf("RG: 0x%X\n", cpu->regs[6]);
-  printf("RH: 0x%X\n", cpu->regs[7]);
+  printf("PC: 0x%02X\n", cpu->PC);
+  printf("RA: 0x%02X\n", cpu->regs[0]);
+  printf("RB: 0x%02X\n", cpu->regs[1]);
+  printf("RC: 0x%02X\n", cpu->regs[2]);
+  printf("RD: 0x%02X\n", cpu->regs[3]);
+  printf("RE: 0x%02X\n", cpu->regs[4]);
+  printf("RF: 0x%02X\n", cpu->regs[5]);
+  printf("RG: 0x%02X\n", cpu->regs[6]);
+  printf("RH: 0x%02X\n", cpu->regs[7]);
   printf("\n");
 }
 
@@ -116,7 +116,7 @@ int main(int argc, char* argv[]) {
   init(&cpu);
   cpu_dump(&cpu);
   setReg("RA", 0xA6, &cpu);
-  setReg("RB", 0xFF, &cpu);
+  setReg("RB", 0x0F, &cpu);
   setReg("RC", 0xC2, &cpu);
   setReg("RD", 0xAB, &cpu);
   setReg("RE", 0x96, &cpu);
