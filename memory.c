@@ -6,7 +6,8 @@
 #include "memory.h"
 #include <string.h>
 
-void memStartFetch(unsigned int address, unsigned int count, uint8_t *dataPtr, boll *memDonePtr) {
+/*
+void memStartFetch(unsigned int address, unsigned int count, uint8_t *dataPtr, bool *memDonePtr) {
   if (1 == count) {
     *dataPtr = memPtr[address];
   }
@@ -16,6 +17,7 @@ void memStartFetch(unsigned int address, unsigned int count, uint8_t *dataPtr, b
   *memDonePtr = true;
   
 }
+*/
 
 void create(int hexBytes, struct Memory *mem) {
   mem->size = hexBytes;
@@ -29,7 +31,7 @@ void reset(struct Memory *mem) {
 }
 
 //Parse function will pass char to this function
-void mem_dump(char hexAddress, char hexCount, struct Memory *mem) {
+void mem_dump(int hexAddress, int hexCount, struct Memory *mem) {
   printf("Addr 00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F\n");
   printf("0x%02X ", (hexAddress - (hexAddress % 16)));
   int countingHexAddress = hexAddress;
@@ -38,8 +40,8 @@ void mem_dump(char hexAddress, char hexCount, struct Memory *mem) {
     printf("   ");
   }
   
-  for(int i = 0; i < hexCount, i++) {
-    if(countingHexAddress % 16 == 0) {
+  for(int i = 0; i < hexCount; i++) {
+    if(countingHexAddress % 16 == 0 && i != 0) {
       printf("\n0x%02X ", (countingHexAddress - (countingHexAddress % 16)));
     }
     printf("%02X ", mem->memIndex[countingHexAddress]);
@@ -52,6 +54,16 @@ void mem_dump(char hexAddress, char hexCount, struct Memory *mem) {
 //Will be handed stuff to do one byte at a time
 //The parse function will be in charge of handling count and determining the address that
 //will be changed, this function will simply change things one at a time
-void set(char hexAddress, char hexByte, struct Memory *mem) {
+void set(int hexAddress, int hexByte, struct Memory *mem) {
   mem->memIndex[hexAddress] = hexByte;
+}
+
+int main() {
+  struct Memory mem;
+  create(0x10000, &mem);
+  reset(&mem);
+  set(0x34, 0xAB, &mem);
+  set(0xE4, 0x42, &mem);
+  mem_dump(0x19, 0xFF, &mem);
+  free(mem.memIndex);
 }

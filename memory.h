@@ -1,1 +1,1 @@
-void mem_dump(char hexAddress, char hexCount, struct Memory *mem);
+void mem_dump(int hexAddress, int hexCount, struct Memory *mem);
