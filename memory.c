@@ -53,5 +53,5 @@ void mem_dump(char hexAddress, char hexCount, struct Memory *mem) {
 //The parse function will be in charge of handling count and determining the address that
 //will be changed, this function will simply change things one at a time
 void set(char hexAddress, char hexByte, struct Memory *mem) {
-  
+  mem->memIndex[hexAddress] = hexByte;
 }
