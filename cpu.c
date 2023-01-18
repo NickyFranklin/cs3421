@@ -105,10 +105,14 @@ bool cpu_parse(FILE *infile, struct CPU *cpu) {
   return false;  
 }
 
-void cpuDoCycleWork() {
+void cpuDoCycleWork(struct CPU *cpu) {
   uint8_t fetchByte;
   bool fetchDone;
-  // memStartFetch(cpu.PC, 1, &fetchByte, &fetchDone);
+  for(int i = 0; i < 7; i++) {
+    cpu->regs[i+1] = cpu->regs[i];
+  }
+  memStartFetch(cpu.PC, 1, &fetchByte, &fetchDone);
+  cpu->regs[0] = fetchByte;
 }
 
 int main(int argc, char* argv[]) {
