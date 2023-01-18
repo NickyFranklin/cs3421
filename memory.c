@@ -33,16 +33,18 @@ void reset(struct Memory *mem) {
 //Parse function will pass char to this function
 void mem_dump(int hexAddress, int hexCount, struct Memory *mem) {
   printf("Addr 00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F\n");
-  printf("0x%02X ", (hexAddress - (hexAddress % 16)));
+  //& 15 takes only the part of hexAddress we want to subtract by
+  //This is because 15 is 1111 and the AND of 1 is a number and the AND of 0 is 0
+  printf("0x%02X ", (hexAddress - (hexAddress & 15)));
   int countingHexAddress = hexAddress;
   //The next loop adds spaces until it is in the correct place
-  for(int i = 0; i < (hexAddress % 16); i++) {
+  for(int i = 0; i < (hexAddress & 15); i++) {
     printf("   ");
   }
   
   for(int i = 0; i < hexCount; i++) {
-    if(countingHexAddress % 16 == 0 && i != 0) {
-      printf("\n0x%02X ", (countingHexAddress - (countingHexAddress % 16)));
+    if((countingHexAddress & 15) == 0 && i != 0) {
+      printf("\n0x%02X ", (countingHexAddress - (countingHexAddress & 15)));
     }
     printf("%02X ", mem->memIndex[countingHexAddress]);
     countingHexAddress++;
@@ -64,6 +66,6 @@ int main() {
   reset(&mem);
   set(0x34, 0xAB, &mem);
   set(0xE4, 0x42, &mem);
-  mem_dump(0x19, 0xFF, &mem);
+  mem_dump(0x32, 0xFF, &mem);
   free(mem.memIndex);
 }
