@@ -15,6 +15,13 @@ void init(struct CPU* cpu) {
   cpu->waitingOnMemory = false;
 }
 
+struct CPU getCpu() {
+  struct CPU cpu;
+  init(&cpu);
+  return cpu;
+}
+
+
 void reset(struct CPU* cpu) {
   for(int i = 0; i < 8; i++) {
     cpu->regs[i] = 0;

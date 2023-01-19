@@ -6,18 +6,22 @@
 #include "memory.h"
 #include <string.h>
 
-/*
-void memStartFetch(unsigned int address, unsigned int count, uint8_t *dataPtr, bool *memDonePtr) {
+
+void memStartFetch(unsigned int address, unsigned int count, uint8_t *dataPtr, bool *memDonePtr, struct Memory *mem) {
   if (1 == count) {
-    *dataPtr = memPtr[address];
+    *dataPtr = mem->memIndex[address];
   }
   else {
-    memcpy(dataPtr, memPtr+address, count);
+    memcpy(dataPtr, mem->Index[address], count);
   }
   *memDonePtr = true;
   
 }
-*/
+
+struct Memory getMem() {
+  struct Memory mem;
+  return mem;
+}
 
 void create(int hexBytes, struct Memory *mem) {
   mem->size = hexBytes;
@@ -58,6 +62,58 @@ void mem_dump(int hexAddress, int hexCount, struct Memory *mem) {
 //will be changed, this function will simply change things one at a time
 void set(int hexAddress, int hexByte, struct Memory *mem) {
   mem->memIndex[hexAddress] = hexByte;
+}
+
+bool mem_parse(FILE *infile, struct Memory *mem) {
+  char str[20];
+
+  if(fscanf(infile, "%s", str == 1)) {
+    //create mem
+    if(strcmp(str, "create") == 0) {
+      if(fscanf(infile, "%s", str == 1)) {
+	int memSize = (int) strtol(str, NULL, 16);
+	create(memSize, mem);
+	return true;
+      }
+    }
+    
+    //reset mem
+    if(strcmp(str, "reset") == 0) {
+      reset(mem);
+      return true;
+    }
+    
+    //set mem
+    if(strcmp(str, "set") == 0) {
+      char str3[20];
+      if(fscanf(infile, "%s %s", str, str3)) {
+	int setAddress = (int) strtol(str, NULL, 16);
+	int setCount = (int) strtol(str3, NULL, 16);
+	char str4[20];
+	for(int i = 0; i < setCount; i++) {
+	  if(fscanf(infile, "%s", str4) == 1) {
+	    int setByte = (int) strtol(str4, NULL, 16);
+	    set(setAddress, setByte, mem);
+	  }
+	}
+	return true;
+      }
+    }
+
+    //dump mem
+    if(strcmp(str, "dump") == 0) {
+      char str2[20];
+      if(fscanf(infile, "%s %s", str, str2 == 2)) {
+	int address = (int) strtol(str, NULL, 16);
+	int count = (int) strtol(str2, NULL, 16);
+	mem_dump(address, count, mem);
+      }
+      return true;
+    }
+    
+  }
+
+  return false;
 }
 
 int main() {

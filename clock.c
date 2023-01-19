@@ -10,6 +10,12 @@ void init(struct Clock *clock) {
   clock->counter = 0;
 }
 
+struct Clock getClock() {
+  struct Clock clock;
+  init(&clock);
+  return clock;
+}
+
 void reset(struct Clock *clock) {
   clock->counter = 0;
 }
@@ -32,7 +38,6 @@ bool clock_parse(FILE *infile, struct Clock *clock) {
 	tick(ticks, clock);
 	return true;
       }
-      return false;
     }
 
     if(strcmp(str, "dump") == 0) {
