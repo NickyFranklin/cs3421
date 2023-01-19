@@ -20,11 +20,14 @@ void reset(struct Clock *clock) {
   clock->counter = 0;
 }
 
-void tick(int ticks, struct Clock *clock) {
+void tick(int ticks, struct Clock *clock, struct CPU *cpu) {
   clock->counter += ticks;
+  for(int i = 0; i < ticks; i++) {
+    cpuDoCycleWork(cpu);
+  }
 }
 
-bool clock_parse(FILE *infile, struct Clock *clock) {
+bool clock_parse(FILE *infile, struct Clock *clock, struct CPU *cpu) {
   char str[40];
   if(fscanf(infile, "%s", str) == 1) {
     if(strcmp(str, "reset") == 0) {
@@ -35,7 +38,7 @@ bool clock_parse(FILE *infile, struct Clock *clock) {
     if(strcmp(str, "tick") == 0) {
       int ticks;
       if(fscanf(infile, "%d", &ticks) == 1) {
-	tick(ticks, clock);
+	tick(ticks, clock, cpu);
 	return true;
       }
     }

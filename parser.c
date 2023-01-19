@@ -45,7 +45,7 @@ int main(int argc, char* argv[]) {
 
     //clock
     if(strcmp(cmd, "clock") == 0) {
-      success = clock_parse(infile, clock);
+      success = clock_parse(infile, clock, cpu);
       if(!success) {
 	printf("clock failure\n");
 	return 0;
