@@ -69,7 +69,7 @@ static void setReg(char *reg, uint8_t hexByte) {
   }
 
   else if(!strcmp(reg, "PC")) {
-    cpu.PC = 0;
+    cpu.PC = hexByte;
   }
   
 }
@@ -120,9 +120,10 @@ bool cpu_parse(FILE *infile) {
 void cpuDoCycleWork() {
   uint8_t fetchByte;
   bool fetchDone;
-  for(int i = 0; i < 7; i++) {
-    cpu.regs[i+1] = cpu.regs[i];
-  }
   memStartFetch(cpu.PC, 1, &fetchByte, &fetchDone);
+  for(int i = 7; i > 0; i--) {
+    cpu.regs[i] = cpu.regs[i-1];
+  }
   cpu.regs[0] = fetchByte;
+  cpu.PC++;
 }

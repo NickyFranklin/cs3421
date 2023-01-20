@@ -17,7 +17,7 @@ void memStartFetch(unsigned int address, unsigned int count, uint8_t *dataPtr, b
   }
   else {
 //potential issue
-    memcpy(dataPtr, &mem.memIndex[address], count);
+    memcpy(dataPtr, mem.memIndex+address, count);
   }
   *memDonePtr = true;
   
@@ -91,14 +91,14 @@ bool mem_parse(FILE *infile) {
     //set mem
     if(strcmp(str, "set") == 0) {
       char str3[20];
-      if(fscanf(infile, "%s %s", str, str3)) {
+      if(fscanf(infile, "%s %s", str, str3) == 2) {
 	int setAddress = (int) strtol(str, NULL, 16);
 	int setCount = (int) strtol(str3, NULL, 16);
 	char str4[20];
 	for(int i = 0; i < setCount; i++) {
 	  if(fscanf(infile, "%s", str4) == 1) {
-	    int setByte = (int) strtol(str4, NULL, 16);
-	    set(setAddress, setByte);
+            int setByte = (int) strtol(str4, NULL, 16);
+	    set(setAddress+i, setByte);
 	  }
 	}
 	return true;
@@ -107,13 +107,15 @@ bool mem_parse(FILE *infile) {
 
     //dump mem
     if(strcmp(str, "dump") == 0) {
+      
       char str2[20];
       if(fscanf(infile, "%s %s", str, str2) == 2) {
-	int address = (int) strtol(str, NULL, 16);
+        int address = (int) strtol(str, NULL, 16);
 	int count = (int) strtol(str2, NULL, 16);
 	mem_dump(address, count);
+        return true;
       }
-      return true;
+      
     }
     
   }
