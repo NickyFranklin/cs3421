@@ -7,6 +7,6 @@ struct Clock {
 
 static void reset();
 static void tick(int ticks);
-static void init();
+static void initClock();
 
 #endif

@@ -7,7 +7,11 @@
 #include <string.h>
 #include "memory.h"
 
-static void init() {
+extern struct Clock clock;
+extern struct CPU cpu;
+extern struct Memory mem;
+
+static void initCpu() {
   for(int i = 0; i < 8; i++) {
     cpu.regs[i] = 0;
   }
@@ -18,7 +22,7 @@ static void init() {
 
 struct CPU getCpu() {
   struct CPU cpu;
-  init();
+  initCpu();
   return cpu;
 }
 

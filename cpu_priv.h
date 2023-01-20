@@ -11,6 +11,6 @@ struct CPU {
 
 static void reset();
 static void setReg(char* reg, uint8_t hexByte);
-static void init();
+static void initCpu();
 
 #endif

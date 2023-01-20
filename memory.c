@@ -6,12 +6,17 @@
 #include "memory.h"
 #include <string.h>
 
+extern struct Clock clock;
+extern struct CPU cpu;
+extern struct Memory mem;
 
 void memStartFetch(unsigned int address, unsigned int count, uint8_t *dataPtr, bool *memDonePtr) {
+//potential issue
   if (1 == count) {
-    *dataPtr = &mem.memIndex[address];
+    *dataPtr = mem.memIndex[address];
   }
   else {
+//potential issue
     memcpy(dataPtr, &mem.memIndex[address], count);
   }
   *memDonePtr = true;
@@ -29,7 +34,7 @@ static void create(int hexBytes) {
 }
 
 static void reset() {
-  for(int i = 0; i < mem->size; i++) {
+  for(int i = 0; i < mem.size; i++) {
     mem.memIndex[i] = 0;
   }
 }
@@ -60,17 +65,17 @@ void mem_dump(int hexAddress, int hexCount) {
 //Will be handed stuff to do one byte at a time
 //The parse function will be in charge of handling count and determining the address that
 //will be changed, this function will simply change things one at a time
-static void set(int hexAddress, int hexByte, struct Memory *mem) {
+static void set(int hexAddress, int hexByte) {
   mem.memIndex[hexAddress] = hexByte;
 }
 
 bool mem_parse(FILE *infile) {
   char str[20];
 
-  if(fscanf(infile, "%s", str == 1)) {
+  if(fscanf(infile, "%s", str) == 1) {
     //create mem
     if(strcmp(str, "create") == 0) {
-      if(fscanf(infile, "%s", str == 1)) {
+      if(fscanf(infile, "%s", str) == 1) {
 	int memSize = (int) strtol(str, NULL, 16);
 	create(memSize);
 	return true;
@@ -103,7 +108,7 @@ bool mem_parse(FILE *infile) {
     //dump mem
     if(strcmp(str, "dump") == 0) {
       char str2[20];
-      if(fscanf(infile, "%s %s", str, str2 == 2)) {
+      if(fscanf(infile, "%s %s", str, str2) == 2) {
 	int address = (int) strtol(str, NULL, 16);
 	int count = (int) strtol(str2, NULL, 16);
 	mem_dump(address, count);

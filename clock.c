@@ -7,13 +7,17 @@
 #include <string.h>
 #include "cpu.h"
 
-static void init() {
+extern struct Clock clock;
+extern struct CPU cpu;
+extern struct Memory mem;
+
+static void initClock() {
   clock.counter = 0;
 }
 
 struct Clock getClock() {
   struct Clock clock;
-  init();
+  initClock();
   return clock;
 }
 
@@ -21,14 +25,14 @@ static void reset() {
   clock.counter = 0;
 }
 
-static void tick(int ticks, struct Clock *clock, struct CPU *cpu) {
+static void tick(int ticks) {
   clock.counter += ticks;
   for(int i = 0; i < ticks; i++) {
     cpuDoCycleWork();
   }
 }
 
-bool clock_parse(FILE *infile, struct Clock *clock, struct CPU *cpu) {
+bool clock_parse(FILE *infile) {
   char str[40];
   if(fscanf(infile, "%s", str) == 1) {
     if(strcmp(str, "reset") == 0) {
@@ -52,7 +56,7 @@ bool clock_parse(FILE *infile, struct Clock *clock, struct CPU *cpu) {
   return false;
 }
 
-void clock_dump(struct Clock *clock) {
+void clock_dump() {
   printf("Clock: %d\n\n", clock.counter);
 }
 

@@ -14,13 +14,14 @@ extern struct CPU cpu;
 extern struct Memory mem;
 extern struct Clock clock;
 
-
 int main(int argc, char* argv[]) {
   if(argc < 2) {
     printf("Please give a file name\n");
     return 0;
   }
-  
+
+  clock = getClock();
+  cpu = getCpu();
   FILE* infile;
   char* filename = argv[1];
   infile = fopen(filename, "r");
@@ -29,20 +30,13 @@ int main(int argc, char* argv[]) {
     return 0;
   }
 
-
-  struct CPU *cpu;
-  struct Memory *mem;
-  struct Clock *clock;
-  clock = &getClock();
-  mem = &getMem();
-  cpu = &getCpu();
-  char[20] cmd;
+  char cmd[20];
   bool success = false;
   while(fscanf(infile, "%s", cmd) == 1) {
     success = false;
     //cpu
     if(strcmp(cmd, "cpu") == 0) {
-      success = cpu_parse(infile, cpu);
+      success = cpu_parse(infile);
       if(!success) {
 	printf("cpu failure\n");
 	return 0;
@@ -51,7 +45,7 @@ int main(int argc, char* argv[]) {
 
     //clock
     if(strcmp(cmd, "clock") == 0) {
-      success = clock_parse(infile, clock, cpu);
+      success = clock_parse(infile);
       if(!success) {
 	printf("clock failure\n");
 	return 0;
@@ -62,7 +56,7 @@ int main(int argc, char* argv[]) {
     
     //memory
     if(strcmp(cmd, "memory") == 0) {
-      success = mem_parse(infile, mem);
+      success = mem_parse(infile);
       if(!success) {
 	printf("memory failure\n");
 	return 0;
@@ -72,4 +66,5 @@ int main(int argc, char* argv[]) {
     
   }
   return 0;
+  free(mem.memIndex);
 }
