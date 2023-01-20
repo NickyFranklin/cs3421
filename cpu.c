@@ -5,94 +5,95 @@
 #include "cpu_priv.h"
 #include "cpu.h"
 #include <string.h>
+#include "memory.h"
 
-void init(struct CPU* cpu) {
+static void init() {
   for(int i = 0; i < 8; i++) {
-    cpu->regs[i] = 0;
+    cpu.regs[i] = 0;
   }
-  cpu->PC = 0;
-  cpu->hasBeenInitialized = true;
-  cpu->waitingOnMemory = false;
+  cpu.PC = 0;
+  cpu.hasBeenInitialized = true;
+  cpu.waitingOnMemory = false;
 }
 
 struct CPU getCpu() {
   struct CPU cpu;
-  init(&cpu);
+  init();
   return cpu;
 }
 
 
-void reset(struct CPU* cpu) {
+static void reset() {
   for(int i = 0; i < 8; i++) {
-    cpu->regs[i] = 0;
+    cpu.regs[i] = 0;
   }
-  cpu->PC = 0;
+  cpu.PC = 0;
   
 }
 
-void setReg(char *reg, uint8_t hexByte, struct CPU* cpu) {
+static void setReg(char *reg, uint8_t hexByte) {
   if(!strcmp(reg, "RA")) {
-    cpu->regs[0] = hexByte;
+    cpu.regs[0] = hexByte;
   }
   
   else if(!strcmp(reg, "RB")) {
-    cpu->regs[1] = hexByte;
+    cpu.regs[1] = hexByte;
   }
 
   else if(!strcmp(reg, "RC")) {
-    cpu->regs[2] = hexByte; 
+    cpu.regs[2] = hexByte; 
   }
 
   else if(!strcmp(reg, "RD")) {
-    cpu->regs[3] = hexByte;
+    cpu.regs[3] = hexByte;
   }
 
   else if(!strcmp(reg, "RE")) {
-    cpu->regs[4] = hexByte;
+    cpu.regs[4] = hexByte;
   }
 
   else if(!strcmp(reg, "RF")) {
-    cpu->regs[5] = hexByte;
+    cpu.regs[5] = hexByte;
   }
 
   else if(!strcmp(reg, "RG")) {
-    cpu->regs[6] = hexByte;
+    cpu.regs[6] = hexByte;
   }
 
   else if(!strcmp(reg, "RH")) {
-    cpu->regs[7] = hexByte;
+    cpu.regs[7] = hexByte;
   }
 
   else if(!strcmp(reg, "PC")) {
-    cpu->PC = 0;
+    cpu.PC = 0;
   }
   
 }
 
-void cpu_dump(struct CPU *cpu) {
-  printf("PC: 0x%02X\n", cpu->PC);
-  printf("RA: 0x%02X\n", cpu->regs[0]);
-  printf("RB: 0x%02X\n", cpu->regs[1]);
-  printf("RC: 0x%02X\n", cpu->regs[2]);
-  printf("RD: 0x%02X\n", cpu->regs[3]);
-  printf("RE: 0x%02X\n", cpu->regs[4]);
-  printf("RF: 0x%02X\n", cpu->regs[5]);
-  printf("RG: 0x%02X\n", cpu->regs[6]);
-  printf("RH: 0x%02X\n", cpu->regs[7]);
+void cpu_dump() {
+  printf("PC: 0x%02X\n", cpu.PC);
+  printf("RA: 0x%02X\n", cpu.regs[0]);
+  printf("RB: 0x%02X\n", cpu.regs[1]);
+  printf("RC: 0x%02X\n", cpu.regs[2]);
+  printf("RD: 0x%02X\n", cpu.regs[3]);
+  printf("RE: 0x%02X\n", cpu.regs[4]);
+  printf("RF: 0x%02X\n", cpu.regs[5]);
+  printf("RG: 0x%02X\n", cpu.regs[6]);
+  printf("RH: 0x%02X\n", cpu.regs[7]);
   printf("\n");
 }
 
-bool cpu_parse(FILE *infile, struct CPU *cpu) {
+bool cpu_parse(FILE *infile) {
   char str[20];
   if(fscanf(infile, "%s", str) == 1) {
 
     if(strcmp(str, "reset") == 0) {
-      reset(cpu);
+      reset();
       return true;
     }
     
     if(strcmp(str, "dump")) {
-      cpu_dump(cpu);
+      cpu_dump();
       return true;
     }
     
@@ -102,7 +103,7 @@ bool cpu_parse(FILE *infile, struct CPU *cpu) {
 	  char parseReg[3];
 	  uint8_t hexByte;
 	  if(fscanf(infile, "%s %hhX", parseReg, &hexByte) == 2) {
-	    setReg(parseReg, hexByte, cpu);
+	    setReg(parseReg, hexByte);
             return true;
 	  }
 	}
@@ -112,31 +113,12 @@ bool cpu_parse(FILE *infile, struct CPU *cpu) {
   return false;  
 }
 
-void cpuDoCycleWork(struct CPU *cpu) {
+void cpuDoCycleWork() {
   uint8_t fetchByte;
   bool fetchDone;
   for(int i = 0; i < 7; i++) {
-    cpu->regs[i+1] = cpu->regs[i];
+    cpu.regs[i+1] = cpu.regs[i];
   }
   memStartFetch(cpu.PC, 1, &fetchByte, &fetchDone);
-  cpu->regs[0] = fetchByte;
-}
-
-int main(int argc, char* argv[]) {
-  struct CPU cpu;
-  init(&cpu);
-  cpu_dump(&cpu);
-  setReg("RA", 0xA6, &cpu);
-  setReg("RB", 0x0F, &cpu);
-  setReg("RC", 0xC2, &cpu);
-  setReg("RD", 0xAB, &cpu);
-  setReg("RE", 0x96, &cpu);
-  setReg("RF", 0x42, &cpu);
-  setReg("RG", 0x55, &cpu);
-  setReg("RH", 0xA6, &cpu);
-  setReg("RA", 0xB4, &cpu);
-  cpu_dump(&cpu);
-  reset(&cpu);
-  cpu_dump(&cpu);
-  return 0;
+  cpu.regs[0] = fetchByte;
 }

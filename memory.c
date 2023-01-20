@@ -7,12 +7,12 @@
 #include <string.h>
 
 
-void memStartFetch(unsigned int address, unsigned int count, uint8_t *dataPtr, bool *memDonePtr, struct Memory *mem) {
+void memStartFetch(unsigned int address, unsigned int count, uint8_t *dataPtr, bool *memDonePtr) {
   if (1 == count) {
-    *dataPtr = mem->memIndex[address];
+    *dataPtr = &mem.memIndex[address];
   }
   else {
-    memcpy(dataPtr, mem->Index[address], count);
+    memcpy(dataPtr, &mem.memIndex[address], count);
   }
   *memDonePtr = true;
   
@@ -23,19 +23,19 @@ struct Memory getMem() {
   return mem;
 }
 
-void create(int hexBytes, struct Memory *mem) {
-  mem->size = hexBytes;
-  mem->memIndex = malloc(sizeof(uint8_t)*hexBytes);
+static void create(int hexBytes) {
+  mem.size = hexBytes;
+  mem.memIndex = malloc(sizeof(uint8_t)*hexBytes);
 }
 
-void reset(struct Memory *mem) {
+static void reset() {
   for(int i = 0; i < mem->size; i++) {
-    mem->memIndex[i] = 0;
+    mem.memIndex[i] = 0;
   }
 }
 
 //Parse function will pass char to this function
-void mem_dump(int hexAddress, int hexCount, struct Memory *mem) {
+void mem_dump(int hexAddress, int hexCount) {
   printf("Addr 00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F\n");
   //& 15 takes only the part of hexAddress we want to subtract by
   //This is because 15 is 1111 and the AND of 1 is a number and the AND of 0 is 0
@@ -50,7 +50,7 @@ void mem_dump(int hexAddress, int hexCount, struct Memory *mem) {
     if((countingHexAddress & 15) == 0 && i != 0) {
       printf("\n0x%02X ", (countingHexAddress - (countingHexAddress & 15)));
     }
-    printf("%02X ", mem->memIndex[countingHexAddress]);
+    printf("%02X ", mem.memIndex[countingHexAddress]);
     countingHexAddress++;
     
   }
@@ -60,11 +60,11 @@ void mem_dump(int hexAddress, int hexCount, struct Memory *mem) {
 //Will be handed stuff to do one byte at a time
 //The parse function will be in charge of handling count and determining the address that
 //will be changed, this function will simply change things one at a time
-void set(int hexAddress, int hexByte, struct Memory *mem) {
-  mem->memIndex[hexAddress] = hexByte;
+static void set(int hexAddress, int hexByte, struct Memory *mem) {
+  mem.memIndex[hexAddress] = hexByte;
 }
 
-bool mem_parse(FILE *infile, struct Memory *mem) {
+bool mem_parse(FILE *infile) {
   char str[20];
 
   if(fscanf(infile, "%s", str == 1)) {
@@ -72,14 +72,14 @@ bool mem_parse(FILE *infile, struct Memory *mem) {
     if(strcmp(str, "create") == 0) {
       if(fscanf(infile, "%s", str == 1)) {
 	int memSize = (int) strtol(str, NULL, 16);
-	create(memSize, mem);
+	create(memSize);
 	return true;
       }
     }
     
     //reset mem
     if(strcmp(str, "reset") == 0) {
-      reset(mem);
+      reset();
       return true;
     }
     
@@ -93,7 +93,7 @@ bool mem_parse(FILE *infile, struct Memory *mem) {
 	for(int i = 0; i < setCount; i++) {
 	  if(fscanf(infile, "%s", str4) == 1) {
 	    int setByte = (int) strtol(str4, NULL, 16);
-	    set(setAddress, setByte, mem);
+	    set(setAddress, setByte);
 	  }
 	}
 	return true;
@@ -106,7 +106,7 @@ bool mem_parse(FILE *infile, struct Memory *mem) {
       if(fscanf(infile, "%s %s", str, str2 == 2)) {
 	int address = (int) strtol(str, NULL, 16);
 	int count = (int) strtol(str2, NULL, 16);
-	mem_dump(address, count, mem);
+	mem_dump(address, count);
       }
       return true;
     }
@@ -116,12 +116,3 @@ bool mem_parse(FILE *infile, struct Memory *mem) {
   return false;
 }
 
-int main() {
-  struct Memory mem;
-  create(0x10000, &mem);
-  reset(&mem);
-  set(0x34, 0xAB, &mem);
-  set(0xE4, 0x42, &mem);
-  mem_dump(0x32, 0xFF, &mem);
-  free(mem.memIndex);
-}

@@ -1,3 +1,7 @@
+#ifndef CPU_PRIV_H_INCLUDED
+#define CPU_PRIV_H_INCLUDED
+
+
 struct CPU {
   uint8_t regs[8];
   uint8_t PC;
@@ -5,6 +9,8 @@ struct CPU {
   bool waitingOnMemory;
 };
 
-void reset(struct CPU *cpu);
-void setReg(char* reg, uint8_t hexByte, struct CPU *cpu);
-void init(struct CPU *cpu);
+static void reset();
+static void setReg(char* reg, uint8_t hexByte);
+static void init();
+
+#endif

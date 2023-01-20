@@ -1,7 +1,12 @@
+#ifndef CLOCK_PRIV_H_INCLUDED
+#define CLOCK_PRIV_H_INCLUDED
+
 struct Clock {
   uint16_t counter;
 };
 
-void reset(struct Clock *clock);
-void tick(int ticks, struct Clock *clock, struct CPU *cpu);
-void init(struct Clock *clock);
+static void reset();
+static void tick(int ticks);
+static void init();
+
+#endif

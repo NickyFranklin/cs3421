@@ -3,11 +3,14 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
-#include <cpu.h>
-#include <memory.h>
-#include <clock.h>
+#include "cpu.h"
+#include "memory.h"
+#include "clock.h"
 
-struct CPU;
+extern struct CPU cpu;
+extern struct Memory mem;
+extern struct Clock clock;
+
 
 int main(int argc, char* argv[]) {
   if(argc < 2) {
