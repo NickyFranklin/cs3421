@@ -7,24 +7,29 @@
 #include <string.h>
 #include "cpu.h"
 
+//Declares globals from outside the file
 extern struct Clock clock;
 extern struct CPU cpu;
 extern struct Memory mem;
 
+//Initializes clock by setting counter to 0
 static void initClock() {
   clock.counter = 0;
 }
 
+//Gets a clock for the parser
 struct Clock getClock() {
   struct Clock clock;
   initClock();
   return clock;
 }
 
+//Resets value of clock
 static void reset() {
   clock.counter = 0;
 }
 
+//Ticks clock forward and calls cyclework functions
 static void tick(int ticks) {
   clock.counter += ticks;
   for(int i = 0; i < ticks; i++) {
@@ -32,6 +37,7 @@ static void tick(int ticks) {
   }
 }
 
+//Parses commands according to word
 bool clock_parse(FILE *infile) {
   char str[40];
   if(fscanf(infile, "%s", str) == 1) {
@@ -56,6 +62,7 @@ bool clock_parse(FILE *infile) {
   return false;
 }
 
+//Prints clock values
 void clock_dump() {
   printf("Clock: %d\n\n", clock.counter);
 }

@@ -6,10 +6,12 @@
 #include "memory.h"
 #include <string.h>
 
+//Declares globals from outside the file
 extern struct Clock clock;
 extern struct CPU cpu;
 extern struct Memory mem;
 
+//Fetches data from memory for the cpu
 void memStartFetch(unsigned int address, unsigned int count, uint8_t *dataPtr, bool *memDonePtr) {
 //potential issue
   if (1 == count) {
@@ -23,23 +25,26 @@ void memStartFetch(unsigned int address, unsigned int count, uint8_t *dataPtr, b
   
 }
 
+//Pretty sure that this is a defunct function from when I started
 struct Memory getMem() {
   struct Memory mem;
   return mem;
 }
 
+//Allocates space in memory 
 static void create(int hexBytes) {
   mem.size = hexBytes;
   mem.memIndex = malloc(sizeof(uint8_t)*hexBytes);
 }
 
+//Sets all memory values to 0
 static void reset() {
   for(int i = 0; i < mem.size; i++) {
     mem.memIndex[i] = 0;
   }
 }
 
-//Parse function will pass char to this function
+//Prints out sections of memory
 void mem_dump(int hexAddress, int hexCount) {
   printf("Addr 00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F\n");
   //& 15 takes only the part of hexAddress we want to subtract by
@@ -50,7 +55,8 @@ void mem_dump(int hexAddress, int hexCount) {
   for(int i = 0; i < (hexAddress & 15); i++) {
     printf("   ");
   }
-  
+
+  //Prints out memory data according to index
   for(int i = 0; i < hexCount; i++) {
     if((countingHexAddress & 15) == 0 && i != 0) {
       printf("\n0x%02X ", (countingHexAddress - (countingHexAddress & 15)));
@@ -69,6 +75,7 @@ static void set(int hexAddress, int hexByte) {
   mem.memIndex[hexAddress] = hexByte;
 }
 
+//Parses and sends commands to do certain functions
 bool mem_parse(FILE *infile) {
   char str[20];
 

@@ -9,17 +9,31 @@
 #include "memory_priv.h"
 #include "clock.h"
 #include "clock_priv.h"
-
+/*
+Name: Nicky Franklin
+Class: CS3421
+Date last modified: 1-20-2023
+Description: This program is a basic emulator of a clock, a cpu, and memory.
+The program takes in values from a file and parses those values to execute certain commands.
+Commands will then be sent to the corresponding device to do what ever functions that are to be parsed.
+Device so far include:
+CPU: setReg, dump, reset
+Memory: set, dump, reset, create
+Clock: tick, dump, reset
+ */
+//Declares Global variables
 struct CPU cpu;
 struct Memory mem;
 struct Clock clock;
 
 int main(int argc, char* argv[]) {
+  //If a file name is not given, then it will not continue
   if(argc < 2) {
     printf("Please give a file name\n");
     return 0;
   }
 
+  //Initializes variables
   clock = getClock();
   cpu = getCpu();
   FILE* infile;
@@ -29,9 +43,11 @@ int main(int argc, char* argv[]) {
     printf("File could not be read\n");
     return 0;
   }
-
+  
   char cmd[20];
   bool success = false;
+  //Parses devices to use. Sends commands to other parsers based on input
+  //If a parse command fails, it gets sent to the shadow realm (an error prints out)
   while(fscanf(infile, "%s", cmd) == 1) {
     success = false;
     //cpu
@@ -67,5 +83,6 @@ int main(int argc, char* argv[]) {
     
   }
   return 0;
+  //This does nothing
   free(mem.memIndex);
 }

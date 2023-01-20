@@ -10,4 +10,3 @@ cpu set reg RF 0xAB
 cpu set reg RG 0x25
 cpu set reg RH 0x39
 cpu dump
-memory dump 0x0 0x94
