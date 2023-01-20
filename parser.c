@@ -4,8 +4,11 @@
 #include <stdbool.h>
 #include <string.h>
 #include "cpu.h"
+#include "cpu_priv.h"
 #include "memory.h"
+#include "memory_priv.h"
 #include "clock.h"
+#include "clock_priv.h"
 
 extern struct CPU cpu;
 extern struct Memory mem;
