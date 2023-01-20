@@ -10,9 +10,9 @@
 #include "clock.h"
 #include "clock_priv.h"
 
-extern struct CPU cpu;
-extern struct Memory mem;
-extern struct Clock clock;
+struct CPU cpu;
+struct Memory mem;
+struct Clock clock;
 
 int main(int argc, char* argv[]) {
   if(argc < 2) {
@@ -37,6 +37,7 @@ int main(int argc, char* argv[]) {
     //cpu
     if(strcmp(cmd, "cpu") == 0) {
       success = cpu_parse(infile);
+      
       if(!success) {
 	printf("cpu failure\n");
 	return 0;

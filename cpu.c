@@ -96,7 +96,7 @@ bool cpu_parse(FILE *infile) {
       return true;
     }
     
-    if(strcmp(str, "dump")) {
+    if(strcmp(str, "dump") == 0) {
       cpu_dump();
       return true;
     }
