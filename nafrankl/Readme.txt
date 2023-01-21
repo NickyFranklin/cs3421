@@ -1,0 +1,2 @@
+I did have a really nice read me but then I accidently deleted it. 
+Essentially, this is compiled using a makefile and other than that, it complies with everything within the assignment with no known issues.
