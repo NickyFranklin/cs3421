@@ -4,10 +4,10 @@
 
 struct InstMemory {
   int size;
-  uint32_t *memIndex;
+  uint32_t *instMemIndex;
 };
 
-static void create(int hexBytes);
+static void create(int hexWords);
 static void reset();
 static void set(int hexAddress, char[4000] file);
 
