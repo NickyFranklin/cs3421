@@ -69,7 +69,13 @@ int main(int argc, char* argv[]) {
       }
     }
 
-
+    if(strcmp(cmd, "imemory") == 0) {
+      success = instMem_parse(infile);
+      if(!success) {
+	printf("instruction memory failure\n");
+	return 0;
+      }
+    }
     
     //memory
     if(strcmp(cmd, "memory") == 0) {
