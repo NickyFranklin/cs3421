@@ -1,12 +1,15 @@
 #ifndef CPU_PRIV_H_INCLUDED
 #define CPU_PRIV_H_INCLUDED
 
+enum State {WAIT, FETCH};
+enum Instruction{LW = 5, SW = 6};
 
 struct CPU {
   uint8_t regs[8];
   uint8_t PC;
   bool hasBeenInitialized;
-  bool waitingOnMemory;
+  enum State state;
+  uint32_t command;
 };
 
 static void reset();

@@ -1,7 +1,6 @@
 #ifndef MEMORY_PRIV_H_INCLUDED
 #define MEMORY_PRIV_H_INCLUDED
 
-
 struct Memory {
   int size;
   uint8_t *memIndex;

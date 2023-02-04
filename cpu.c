@@ -11,6 +11,7 @@
 extern struct Clock clock;
 extern struct CPU cpu;
 extern struct Memory mem;
+extern struct InstMemory instMem;
 
 //initializes the cpu and everything to 0
 static void initCpu() {
@@ -19,7 +20,8 @@ static void initCpu() {
   }
   cpu.PC = 0;
   cpu.hasBeenInitialized = true;
-  cpu.waitingOnMemory = false;
+  cpu.state = FETCH;
+  
 }
 
 //makes a cpu for the parser
@@ -35,7 +37,7 @@ static void reset() {
     cpu.regs[i] = 0;
   }
   cpu.PC = 0;
-  
+  cpu.state = FETCH;
 }
 
 //Checks which register is being set and then updates it with the correct byte of data
@@ -74,6 +76,7 @@ static void setReg(char *reg, uint8_t hexByte) {
 
   else if(!strcmp(reg, "PC")) {
     cpu.PC = hexByte;
+    cpu.state = FETCH;
   }
   
 }
@@ -128,10 +131,39 @@ bool cpu_parse(FILE *infile) {
 void cpuDoCycleWork() {
   uint8_t fetchByte;
   bool fetchDone;
-  for(int i = 7; i > 0; i--) {
-    cpu.regs[i] = cpu.regs[i-1];
+  if(cpu.state == WAIT) {
+    //call data memory function here
+    bool fetchDone;
+    if(fetchDone) {
+      cpu.state = FETCH;
+      //use cpu command to perform operation
+    }
   }
-  memStartFetch(cpu.PC, 1, &fetchByte, &fetchDone);
-  cpu.regs[0] = fetchByte;
-  cpu.PC++;
+  
+  //If the cpu hasn't waited at all, then it will fetch a new instruction
+  else if(cpu.state == FETCH) {
+    cpu.command = imemFetch(cpu.PC);
+    cpu.PC++;
+    //Getting instruction bits and ANDing by binary 111 just
+    //incase the 32bit value has something it shouldn't
+    int instruction = (cpu.command >> 17) & 7;
+    if(instruction == SW) {
+      //call data memory
+      cpu.state = WAIT;
+    }
+
+    else if(instruction == LW) {
+      //call data memory
+      cpu.state = WAIT;
+    }
+  }
+  
+}
+
+void cpu_start_tick() {
+
+}
+
+bool cpuIsMoreCycleWork() {
+
 }

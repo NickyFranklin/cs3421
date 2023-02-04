@@ -14,17 +14,27 @@ extern struct InstMemory instMem;
 
 //Fetches data from memory for the cpu
 void memStartFetch(unsigned int address, unsigned int count, uint8_t *dataPtr, bool *memDonePtr) {
-//potential issue
   if (1 == count) {
     *dataPtr = mem.memIndex[address];
   }
   else {
-//potential issue
     memcpy(dataPtr, mem.memIndex+address, count);
   }
   *memDonePtr = true;
+}
+
+void memDoCycleWork() {
+
+}
+
+void memStartTick() {
+
+}
+
+bool memIsMoreCycleWorkNeeded() {
   
 }
+
 
 //Pretty sure that this is a defunct function from when I started
 struct Memory getMem() {
@@ -43,6 +53,7 @@ static void reset() {
   for(int i = 0; i < mem.size; i++) {
     mem.memIndex[i] = 0;
   }
+  mem.state = FETCH;
 }
 
 //Prints out sections of memory
