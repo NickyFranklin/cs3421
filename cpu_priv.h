@@ -10,6 +10,8 @@ struct CPU {
   bool hasBeenInitialized;
   enum State state;
   uint32_t command;
+  uint8_t *memPtr;
+  bool *memDonePtr;  
 };
 
 static void reset();

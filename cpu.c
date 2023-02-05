@@ -21,7 +21,7 @@ static void initCpu() {
   cpu.PC = 0;
   cpu.hasBeenInitialized = true;
   cpu.state = FETCH;
-  
+  *cpu.memPtr = false;
 }
 
 //makes a cpu for the parser
@@ -38,6 +38,7 @@ static void reset() {
   }
   cpu.PC = 0;
   cpu.state = FETCH;
+  *cpu.memPtr = false; 
 }
 
 //Checks which register is being set and then updates it with the correct byte of data
@@ -127,16 +128,12 @@ bool cpu_parse(FILE *infile) {
   return false;  
 }
 
-//On clock cycles, it shifts all registers down and then puts data from memory into RA
 void cpuDoCycleWork() {
-  uint8_t fetchByte;
-  bool fetchDone;
   if(cpu.state == WAIT) {
-    //call data memory function here
-    bool fetchDone;
-    if(fetchDone) {
+    if(*cpu.memDonePtr == true) {
       cpu.state = FETCH;
       //use cpu command to perform operation
+      *cpu.memDonePtr = false;
     }
   }
   
@@ -146,23 +143,30 @@ void cpuDoCycleWork() {
     cpu.PC++;
     //Getting instruction bits and ANDing by binary 111 just
     //incase the 32bit value has something it shouldn't
-    int instruction = (cpu.command >> 17) & 7;
+    int instruction = ((cpu.command >> 17) & 7);
     if(instruction == SW) {
-      //call data memory
+      int targetReg = ((cpu.command >> 8) & 7);
+      int sourceReg = ((cpu.command >> 11) & 7);
+      //figure out what goes in cpu.regs[] later
+      memStartStore(cpu.regs[], 1, &cpu.regs[], cpu.memDonePtr);
       cpu.state = WAIT;
     }
 
     else if(instruction == LW) {
-      //call data memory
+      int targetReg = ((cpu.command >> 8) & 7);
+      int destinationReg = ((cpu.command >> 14) & 7);
+      memStartFetch(cpu.regs[], 1, &cpu.regs[], cpu.memDonePtr);
       cpu.state = WAIT;
     }
   }
   
 }
 
+//Isn't really needed
 void cpu_start_tick() {
-
+  
 }
+
 
 bool cpuIsMoreCycleWork() {
 
