@@ -148,14 +148,14 @@ void cpuDoCycleWork() {
       int targetReg = ((cpu.command >> 8) & 7);
       int sourceReg = ((cpu.command >> 11) & 7);
       //figure out what goes in cpu.regs[] later
-      memStartStore(cpu.regs[], 1, &cpu.regs[], cpu.memDonePtr);
+      memStartStore(cpu.regs[targetReg], 1, &cpu.regs[sourceReg], cpu.memDonePtr);
       cpu.state = WAIT;
     }
 
     else if(instruction == LW) {
       int targetReg = ((cpu.command >> 8) & 7);
       int destinationReg = ((cpu.command >> 14) & 7);
-      memStartFetch(cpu.regs[], 1, &cpu.regs[], cpu.memDonePtr);
+      memStartFetch(cpu.regs[targetReg], 1, &cpu.regs[destinationReg], cpu.memDonePtr);
       cpu.state = WAIT;
     }
   }
