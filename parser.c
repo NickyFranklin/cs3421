@@ -35,10 +35,11 @@ int main(int argc, char* argv[]) {
     printf("Please give a file name\n");
     return 0;
   }
-
   //Initializes variables
   clock = getClock();
+  printf("clock gained\n");
   cpu = getCpu();
+  printf("cpu gained \n");
   FILE* infile;
   char* filename = argv[1];
   infile = fopen(filename, "r");
@@ -46,7 +47,7 @@ int main(int argc, char* argv[]) {
     printf("File could not be read\n");
     return 0;
   }
-  
+  printf("initial intialization\n");
   char cmd[20];
   bool success = false;
   //Parses devices to use. Sends commands to other parsers based on input

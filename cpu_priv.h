@@ -1,16 +1,17 @@
 #ifndef CPU_PRIV_H_INCLUDED
 #define CPU_PRIV_H_INCLUDED
+#include <stdbool.h>
 
-enum State {WAIT, FETCH};
-enum Instruction{LW = 5, SW = 6};
+enum {LW = 5, SW = 6} Instruction;
 
 struct CPU {
   uint8_t regs[8];
   uint8_t PC;
   bool hasBeenInitialized;
-  enum State state;
+  enum {WAIT, FETCH} state;
   uint32_t command;
   uint8_t *memPtr;
+  bool memDone;
   bool *memDonePtr;  
 };
 

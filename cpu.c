@@ -21,8 +21,12 @@ static void initCpu() {
   }
   cpu.PC = 0;
   cpu.hasBeenInitialized = true;
+  
   cpu.state = FETCH;
-  *cpu.memPtr = false;
+  printf("up to pointer\n");
+  cpu.memDone = false;
+  cpu.memDonePtr = &cpu.memDone;
+  printf("past pointer\n");
 }
 
 //makes a cpu for the parser
@@ -38,8 +42,11 @@ static void reset() {
     cpu.regs[i] = 0;
   }
   cpu.PC = 0;
+  printf("reset old\n");
   cpu.state = FETCH;
-  *cpu.memPtr = false; 
+  printf("reset enum \n");
+  *cpu.memPtr = false;
+  printf("not in reset\n");
 }
 
 //Checks which register is being set and then updates it with the correct byte of data
@@ -170,5 +177,5 @@ void cpu_start_tick() {
 
 
 bool cpuIsMoreCycleWork() {
-
+    return false;
 }

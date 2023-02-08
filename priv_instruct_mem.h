@@ -9,6 +9,6 @@ struct InstMemory {
 
 static void create(int hexWords);
 static void reset();
-static void set(int hexAddress, char[4000] file);
+static void setI(long hexAddress, char file[]);
 
 #endif

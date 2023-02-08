@@ -16,9 +16,13 @@ struct InstMemory getInstMem() {
   return instMem;
 }
 
+uint32_t imemFetch(uint8_t address) {
+  return instMem.instMemIndex[address];
+}
+
 static void create(int hexWords) {
   instMem.size = hexWords;
-  instMem.instMemIndex = malloc(sizeof(uint32_t)*hexwords);
+  instMem.instMemIndex = malloc(sizeof(uint32_t)*hexWords);
 }
 
 static void reset() {
@@ -40,7 +44,7 @@ void instMem_dump(int hexAddress, int hexCount) {
   }
 
   //Prints out the data
-  for(int i = 0; i < hexCOunt; i++) {
+  for(int i = 0; i < hexCount; i++) {
     if((countingHexAddress & 7) == 0 && i != 0) {
       printf("\n0x%02x ", (countingHexAddress - (countingHexAddress & 7)));
     }
@@ -51,15 +55,15 @@ void instMem_dump(int hexAddress, int hexCount) {
   printf("\n\n");
 }
 
-static void set(long hexAddress, char[4000] file) {
+static void setI(long hexAddress, char file[]) {
   FILE* infile;
   infile = fopen(file, "r");
-  char[20] cmd;
+  char cmd[20];
   if(NULL == infile) {
     printf("File count not be read\n");
   }
   while(fscanf(infile, "%s", cmd) == 1) {
-    instMem.instMemIndex[hexAddress] = cmd;
+    instMem.instMemIndex[hexAddress] = strtol(cmd, NULL, 16);
     hexAddress++;
   }
   fclose(infile);
@@ -94,7 +98,7 @@ bool instMem_parse(FILE *infile) {
 	if(fscanf(infile,"%s", str2) == 1) {
 	  if(strcmp(str2, "file") == 0) {
 	    if(fscanf(infile, "%s", str3) == 1) {
-	      set(hexAddress, str3);
+	      setI(hexAddress, str3);
 	      return true;
 	    }
 	  }
