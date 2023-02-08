@@ -23,10 +23,8 @@ static void initCpu() {
   cpu.hasBeenInitialized = true;
   
   cpu.state = FETCH;
-  printf("up to pointer\n");
   cpu.memDone = false;
   cpu.memDonePtr = &cpu.memDone;
-  printf("past pointer\n");
 }
 
 //makes a cpu for the parser
@@ -42,11 +40,8 @@ static void reset() {
     cpu.regs[i] = 0;
   }
   cpu.PC = 0;
-  printf("reset old\n");
   cpu.state = FETCH;
-  printf("reset enum \n");
-  *cpu.memPtr = false;
-  printf("not in reset\n");
+  cpu.memDone = false;
 }
 
 //Checks which register is being set and then updates it with the correct byte of data
@@ -138,15 +133,16 @@ bool cpu_parse(FILE *infile) {
 
 void cpuDoCycleWork() {
   if(cpu.state == WAIT) {
-    if(*cpu.memDonePtr == true) {
+    if(cpu.memDone == true) {
       cpu.state = FETCH;
       //use cpu command to perform operation
-      *cpu.memDonePtr = false;
+      cpu.memDone = false;
+      
     }
   }
   
   //If the cpu hasn't waited at all, then it will fetch a new instruction
-  else if(cpu.state == FETCH) {
+  if(cpu.state == FETCH) {
     cpu.command = imemFetch(cpu.PC);
     cpu.PC++;
     //Getting instruction bits and ANDing by binary 111 just
@@ -156,14 +152,14 @@ void cpuDoCycleWork() {
       int targetReg = ((cpu.command >> 8) & 7);
       int sourceReg = ((cpu.command >> 11) & 7);
       //figure out what goes in cpu.regs[] later
-      memStartStore(cpu.regs[targetReg], 1, &cpu.regs[sourceReg], cpu.memDonePtr);
+      memStartStore(cpu.regs[targetReg], 1, &cpu.regs[sourceReg], &cpu.memDone);
       cpu.state = WAIT;
     }
 
     else if(instruction == LW) {
       int targetReg = ((cpu.command >> 8) & 7);
-      int destinationReg = ((cpu.command >> 14) & 7);
-      memStartFetch(cpu.regs[targetReg], 1, &cpu.regs[destinationReg], cpu.memDonePtr);
+      int destinationReg = ((cpu.command >> 14) & 7);  
+      memStartFetch(cpu.regs[targetReg], 1, &cpu.regs[destinationReg], &cpu.memDone);
       cpu.state = WAIT;
     }
   }

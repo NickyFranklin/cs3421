@@ -11,6 +11,7 @@ struct Memory {
   unsigned int requestCount;
   uint8_t *dataPtr;
   bool *memDonePtr;
+  bool memDone;
 };
 
 static void create(int hexBytes);

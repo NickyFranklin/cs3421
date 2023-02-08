@@ -7,6 +7,7 @@
 #include <string.h>
 #include "cpu.h"
 #include "instruct_mem.h"
+#include "memory.h"
 
 //Declares globals from outside the file
 extern struct Clock clock;
@@ -36,6 +37,7 @@ static void tick(int ticks) {
   clock.counter += ticks;
   for(int i = 0; i < ticks; i++) {
     cpuDoCycleWork();
+    memDoCycleWork();
   }
 }
 

@@ -49,7 +49,7 @@ void memDoCycleWork() {
     if(mem.ticks == 5) {
       memcpy(mem.dataPtr, mem.memIndex+mem.requestAddress, mem.requestCount);
       mem.state = IDLE;
-      *mem.memDonePtr = true;
+      *(mem.memDonePtr) = true;
       mem.ticks = 0;
     }
   }
