@@ -6,6 +6,7 @@
 #include "cpu.h"
 #include <string.h>
 #include "memory.h"
+#include "instruct_mem.h"
 
 //Declares the global variables in the file
 extern struct Clock clock;

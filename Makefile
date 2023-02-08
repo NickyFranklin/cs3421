@@ -1,10 +1,11 @@
-cs3421_emul: parser.o clock.o cpu.o memory.o
+cs3421_emul: parser.o clock.o cpu.o memory.o instmem.o
 	gcc -g -o cs3421_emul $^
 
 parser.o: clock.h cpu.h memory.h clock_priv.h cpu_priv.h memory_priv.h
 cpu.o: cpu.h cpu_priv.h
 memory.o: memory.h memory_priv.h
 clock.o: clock.h clock_priv.h
+instmem.o: instruct_mem.h priv_instruct_mem.h
 
 %.o: %.c
 	gcc -g -c $<

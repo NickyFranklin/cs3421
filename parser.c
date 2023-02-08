@@ -9,6 +9,8 @@
 #include "memory_priv.h"
 #include "clock.h"
 #include "clock_priv.h"
+#include "priv_instruct_mem.h"
+#include "instruct_mem.h"
 /*
 Name: Nicky Franklin
 Class: CS3421
@@ -25,6 +27,7 @@ Clock: tick, dump, reset
 struct CPU cpu;
 struct Memory mem;
 struct Clock clock;
+struct InstMemory instMem;
 
 int main(int argc, char* argv[]) {
   //If a file name is not given, then it will not continue
