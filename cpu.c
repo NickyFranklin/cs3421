@@ -137,23 +137,60 @@ void cpuDoCycleWork() {
       cpu.state = FETCH;
       //use cpu command to perform operation
       cpu.memDone = false;
-      
     }
   }
   
   //If the cpu hasn't waited at all, then it will fetch a new instruction
   if(cpu.state == FETCH) {
     cpu.command = imemFetch(cpu.PC);
-    cpu.PC++;
     //Getting instruction bits and ANDing by binary 111 just
     //incase the 32bit value has something it shouldn't
     int instruction = ((cpu.command >> 17) & 7);
-    if(instruction == SW) {
+
+    if(instruction == ADD) {
+      int destReg = ((cpu.command >> 14) & 7);
+      int sourceReg = ((cpu.command >> 11) & 7);
+      int targetReg = ((cpu.command >> 8) & 7);
+      cpu.PC++;
+    }
+
+    else if(instruction == ADDI) {
+      cpu.PC++;
+    }
+
+    else if(instruction == MUL) {
+      cpu.PC++;
+    }
+
+    else if(instruction == INV) {
+      cpu.PC++;
+    }
+
+    else if(instruction == B) {
+      int branchInst = ((cpu.command >> 14) & 7);
+
+      if(branchInst == BEQ) {
+	
+      }
+
+      else if(branchInst == BNEQ) {
+
+      }
+
+      else if(branchInst == BLT) {
+
+      }
+
+      
+    }
+
+    else if(instruction == SW) {
       int targetReg = ((cpu.command >> 8) & 7);
       int sourceReg = ((cpu.command >> 11) & 7);
       //figure out what goes in cpu.regs[] later
       memStartStore(cpu.regs[targetReg], 1, &cpu.regs[sourceReg], &cpu.memDone);
       cpu.state = WAIT;
+      cpu.PC++;
     }
 
     else if(instruction == LW) {
@@ -161,7 +198,16 @@ void cpuDoCycleWork() {
       int destinationReg = ((cpu.command >> 14) & 7);  
       memStartFetch(cpu.regs[targetReg], 1, &cpu.regs[destinationReg], &cpu.memDone);
       cpu.state = WAIT;
+      cpu.PC++;
     }
+
+    else if(instruction == HALT) {
+      cpu.PC++;
+    }
+    
+
+
+    
   }
   
 }
