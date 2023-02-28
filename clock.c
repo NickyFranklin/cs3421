@@ -38,6 +38,12 @@ static void tick(int ticks) {
   for(int i = 0; i < ticks; i++) {
     cpuDoCycleWork();
     memDoCycleWork();
+    /*
+    while(cpuIsMoreCycleWork()) {
+      cpuDoCycleWork();
+      memDoCycleWork();
+    }
+    */
   }
 }
 
