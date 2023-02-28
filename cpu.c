@@ -136,9 +136,11 @@ bool cpu_parse(FILE *infile) {
 }
 
 void cpuDoCycleWork() {
-  if(cpu.state == WAIT && cpu.state != HALT2) {
+  if(cpu.state == WAIT) {
     if(cpu.memDone == true) {
-      cpu.state = FETCH;
+      if(cpu.state != HALT) {
+	cpu.state = FETCH;
+      }
       //use cpu command to perform operation
       cpu.memDone = false;
     }
@@ -292,7 +294,7 @@ void cpuDoCycleWork() {
     }
 
     else if(instruction == HALT) {
-      cpu.state == HALT2;
+      cpu.state = HALTED;
       cpu.PC++;
       cpu.moreWork = false;
     }

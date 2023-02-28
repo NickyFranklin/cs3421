@@ -8,7 +8,7 @@ struct CPU {
   uint8_t regs[8];
   uint8_t PC;
   bool hasBeenInitialized;
-  enum {WAIT, FETCH, WORK, HALT2} state;
+  enum {WAIT, FETCH, WORK, HALTED} state;
   uint32_t command;
   uint8_t *memPtr;
   bool memDone;
