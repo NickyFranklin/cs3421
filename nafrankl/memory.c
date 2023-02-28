@@ -10,20 +10,71 @@
 extern struct Clock clock;
 extern struct CPU cpu;
 extern struct Memory mem;
+extern struct InstMemory instMem;
 
 //Fetches data from memory for the cpu
 void memStartFetch(unsigned int address, unsigned int count, uint8_t *dataPtr, bool *memDonePtr) {
-//potential issue
+  /*
   if (1 == count) {
     *dataPtr = mem.memIndex[address];
   }
   else {
-//potential issue
     memcpy(dataPtr, mem.memIndex+address, count);
   }
   *memDonePtr = true;
+  */
+  mem.state = MOVE;
+  mem.dataPtr = dataPtr;
+  mem.requestCount = count;
+  mem.requestAddress = address;
+  mem.memDonePtr = memDonePtr;
+}
+
+void memStartStore(unsigned int address, unsigned int count, uint8_t *dataPtr, bool *memDonePtr) {
+  mem.state = STORE;
+  mem.dataPtr = dataPtr;
+  mem.requestCount = count;
+  mem.requestAddress = address;
+  mem.memDonePtr = memDonePtr;
+}
+
+
+void memDoCycleWork() {
+  if(mem.state == IDLE) {
+    //do nothing
+  }
+  
+  else if(mem.state == MOVE) {
+    mem.ticks = mem.ticks + 1;
+    if(mem.ticks == 5) {
+      memcpy(mem.dataPtr, mem.memIndex+mem.requestAddress, mem.requestCount);
+      mem.state = IDLE;
+      *(mem.memDonePtr) = true;
+      mem.ticks = 0;
+    }
+  }
+
+  else if(mem.state == STORE) {
+    mem.ticks = mem.ticks + 1;
+    if(mem.ticks == 5) {
+      memcpy(mem.memIndex+mem.requestAddress, mem.dataPtr, mem.requestCount);
+      mem.state = IDLE;
+      *mem.memDonePtr = true;
+      mem.ticks = 0;
+    }
+  }
   
 }
+
+
+void memStartTick() {
+
+}
+
+bool memIsMoreCycleWorkNeeded() {
+  
+}
+
 
 //Pretty sure that this is a defunct function from when I started
 struct Memory getMem() {
@@ -42,6 +93,8 @@ static void reset() {
   for(int i = 0; i < mem.size; i++) {
     mem.memIndex[i] = 0;
   }
+  mem.state = IDLE;
+  mem.ticks = 0;
 }
 
 //Prints out sections of memory

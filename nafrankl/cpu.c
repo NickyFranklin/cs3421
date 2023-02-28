@@ -6,11 +6,13 @@
 #include "cpu.h"
 #include <string.h>
 #include "memory.h"
+#include "instruct_mem.h"
 
 //Declares the global variables in the file
 extern struct Clock clock;
 extern struct CPU cpu;
 extern struct Memory mem;
+extern struct InstMemory instMem;
 
 //initializes the cpu and everything to 0
 static void initCpu() {
@@ -19,7 +21,12 @@ static void initCpu() {
   }
   cpu.PC = 0;
   cpu.hasBeenInitialized = true;
-  cpu.waitingOnMemory = false;
+  
+  cpu.state = FETCH;
+  cpu.memDone = false;
+  cpu.memDonePtr = &cpu.memDone;
+  cpu.ticks = 0;
+  cpu.moreWork = false;
 }
 
 //makes a cpu for the parser
@@ -35,7 +42,10 @@ static void reset() {
     cpu.regs[i] = 0;
   }
   cpu.PC = 0;
-  
+  cpu.state = FETCH;
+  cpu.memDone = false;
+  cpu.ticks = 0;
+  cpu.moreWork = false;
 }
 
 //Checks which register is being set and then updates it with the correct byte of data
@@ -74,6 +84,7 @@ static void setReg(char *reg, uint8_t hexByte) {
 
   else if(!strcmp(reg, "PC")) {
     cpu.PC = hexByte;
+    cpu.state = FETCH;
   }
   
 }
@@ -124,14 +135,183 @@ bool cpu_parse(FILE *infile) {
   return false;  
 }
 
-//On clock cycles, it shifts all registers down and then puts data from memory into RA
 void cpuDoCycleWork() {
-  uint8_t fetchByte;
-  bool fetchDone;
-  for(int i = 7; i > 0; i--) {
-    cpu.regs[i] = cpu.regs[i-1];
+  if(cpu.state == WAIT) {
+    if(cpu.memDone == true) {
+      if(cpu.state != HALT) {
+	cpu.state = FETCH;
+      }
+      //use cpu command to perform operation
+      cpu.memDone = false;
+    }
   }
-  memStartFetch(cpu.PC, 1, &fetchByte, &fetchDone);
-  cpu.regs[0] = fetchByte;
-  cpu.PC++;
+  
+  //If the cpu hasn't waited at all, then it will fetch a new instruction
+  
+  if(cpu.state == FETCH || cpu.state == WORK) {
+    cpu.command = imemFetch(cpu.PC);
+    //Getting instruction bits and ANDing by binary 111 just
+    //incase the 32bit value has something it shouldn't
+    int instruction = ((cpu.command >> 17) & 7);
+    
+    if(instruction == ADD) {
+      int destReg = ((cpu.command >> 14) & 7);
+      int sourceReg = ((cpu.command >> 11) & 7);
+      int targetReg = ((cpu.command >> 8) & 7);
+      uint8_t twosComplimentSource = cpu.regs[sourceReg];
+      uint8_t twosComplimentTarget = cpu.regs[targetReg];
+      if((cpu.regs[sourceReg] & 128) == 1) {
+	twosComplimentSource = (~twosComplimentSource) + 1;
+      }
+      
+      if((cpu.regs[targetReg] & 128) == 1) {
+	twosComplimentTarget = (~twosComplimentTarget) + 1;
+      }
+      cpu.regs[destReg] = twosComplimentSource + twosComplimentTarget;
+      cpu.moreWork = true;
+      cpu.PC++;
+    }
+    
+    else if(instruction == ADDI) {
+      int destReg = ((cpu.command >> 14) & 7);
+      int sourceReg = ((cpu.command >> 11) & 7);
+      int immediate = ((cpu.command) & 255);
+      uint8_t twosComplimentSource = cpu.regs[sourceReg];
+      uint8_t twosComplimentImmediate = immediate;
+      if((cpu.regs[sourceReg] & 128) == 1) {
+	twosComplimentSource = (~twosComplimentSource) + 1;
+      }
+      
+      if((immediate & 128) == 1) {
+	twosComplimentImmediate = (~twosComplimentImmediate) + 1;
+      }
+      cpu.regs[destReg] = twosComplimentSource + twosComplimentImmediate;
+      cpu.moreWork = true;
+      cpu.PC++;
+    }
+
+    else if(instruction == MUL) {
+      cpu.ticks++;
+      if(cpu.ticks == 2) {
+	int destReg = ((cpu.command >> 14) & 7);
+	int sourceReg = ((cpu.command >> 11) & 7);
+	int firstHalf = cpu.regs[sourceReg] & 15;
+	int secondHalf = (cpu.regs[sourceReg] >> 4) & 15;
+	cpu.regs[destReg] = firstHalf * secondHalf;
+	//cpu.memDone = true;
+	cpu.PC++;
+	cpu.ticks = 0;
+      }
+      cpu.moreWork = true;
+      /*
+      cpu.state = WORK;
+      if(cpu.memDone == true) {
+	cpu.PC++;
+	cpu.state = FETCH;
+      }
+      cpu.memDone = false;
+      */
+    }
+
+    else if(instruction == INV) {
+      int destReg = ((cpu.command >> 14) & 7);
+      int sourceReg = ((cpu.command >> 11) & 7);
+      cpu.regs[destReg] = ~cpu.regs[sourceReg];
+      cpu.PC++;
+      cpu.moreWork = true;
+    }
+
+    else if(instruction == B) {
+      int branchInst = ((cpu.command >> 14) & 7);
+      int sourceReg = ((cpu.command >> 11) & 7);
+      int targetReg = ((cpu.command >> 8) & 7);
+      int immediate = ((cpu.command) & 255);
+      cpu.ticks++;
+      if(branchInst == BEQ) {
+	if(cpu.regs[sourceReg] != cpu.regs[targetReg] && cpu.ticks == 2) {
+	  cpu.PC++;
+	  cpu.ticks = 0;
+	  cpu.moreWork = true;
+	}
+
+	if(cpu.regs[sourceReg] == cpu.regs[targetReg]) {
+	  cpu.PC = immediate;
+	  cpu.ticks = 0;
+	  cpu.moreWork = true;
+	}
+      }
+
+      else if(branchInst == BNEQ) {
+	if(cpu.regs[sourceReg] == cpu.regs[targetReg] && cpu.ticks == 2) {
+	  cpu.PC++;
+	  cpu.ticks = 0;
+	  cpu.moreWork = true;
+	}
+	
+	if(cpu.regs[sourceReg] != cpu.regs[targetReg]) {
+	  cpu.PC = immediate;
+	  cpu.ticks = 0;
+	  cpu.moreWork = true;
+	}
+
+      }
+
+      else if(branchInst == BLT) {
+	if(cpu.regs[sourceReg] >= cpu.regs[targetReg] && cpu.ticks == 2) {
+	  cpu.PC++;
+	  cpu.ticks = 0;
+	  cpu.moreWork = true;
+	}
+	
+	if(cpu.regs[sourceReg] < cpu.regs[targetReg]) {
+	  cpu.PC = immediate;
+	  cpu.ticks = 0;
+	  cpu.moreWork = true;
+	}
+
+      }
+
+      
+    }
+
+    else if(instruction == SW) {
+      int targetReg = ((cpu.command >> 8) & 7);
+      int sourceReg = ((cpu.command >> 11) & 7);
+      //figure out what goes in cpu.regs[] later
+      memStartStore(cpu.regs[targetReg], 1, &cpu.regs[sourceReg], &cpu.memDone);
+      cpu.state = WAIT;
+      cpu.PC++;
+      cpu.moreWork = false;
+    }
+
+    else if(instruction == LW) {
+      int targetReg = ((cpu.command >> 8) & 7);
+      int destinationReg = ((cpu.command >> 14) & 7);  
+      memStartFetch(cpu.regs[targetReg], 1, &cpu.regs[destinationReg], &cpu.memDone);
+      cpu.state = WAIT;
+      cpu.PC++;
+      cpu.moreWork = false;
+    }
+
+    else if(instruction == HALT) {
+      cpu.state = HALTED;
+      cpu.PC++;
+      cpu.moreWork = false;
+    }
+    
+
+
+    
+  }
+  
+}
+
+//Isn't really needed
+void cpu_start_tick() {
+  
+}
+
+
+bool cpuIsMoreCycleWork() {
+  return cpu.moreWork;
 }

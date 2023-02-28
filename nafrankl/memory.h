@@ -8,5 +8,9 @@ struct Memory getMem();
 //The hexBytes will be a string of all the hex bytes and then they will be taken
 //one by one until they are all gone from the string
 void memStartFetch(unsigned int address, unsigned int count, uint8_t *dataPtr, bool *memDonePtr);
+void memStartStore(unsigned int address, unsigned int count, uint8_t *dataPtr, bool *memDonePtr);
+void memDoCycleWork();
+void memStartTick();
+bool memIsMoreCycleWorkNeeded();
 
 #endif

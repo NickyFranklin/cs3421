@@ -6,6 +6,7 @@ void cpu_dump();
 bool cpu_parse(FILE *infile);
 void cpu_start_tick();
 void cpuDoCycleWork();
+bool cpuIsMoreCycleWork();
 struct CPU getCpu();
 
 #endif

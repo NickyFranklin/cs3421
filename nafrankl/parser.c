@@ -9,6 +9,8 @@
 #include "memory_priv.h"
 #include "clock.h"
 #include "clock_priv.h"
+#include "priv_instruct_mem.h"
+#include "instruct_mem.h"
 /*
 Name: Nicky Franklin
 Class: CS3421
@@ -25,6 +27,7 @@ Clock: tick, dump, reset
 struct CPU cpu;
 struct Memory mem;
 struct Clock clock;
+struct InstMemory instMem;
 
 int main(int argc, char* argv[]) {
   //If a file name is not given, then it will not continue
@@ -32,7 +35,6 @@ int main(int argc, char* argv[]) {
     printf("Please give a file name\n");
     return 0;
   }
-
   //Initializes variables
   clock = getClock();
   cpu = getCpu();
@@ -43,7 +45,6 @@ int main(int argc, char* argv[]) {
     printf("File could not be read\n");
     return 0;
   }
-  
   char cmd[20];
   bool success = false;
   //Parses devices to use. Sends commands to other parsers based on input
@@ -69,7 +70,13 @@ int main(int argc, char* argv[]) {
       }
     }
 
-
+    if(strcmp(cmd, "imemory") == 0) {
+      success = instMem_parse(infile);
+      if(!success) {
+	printf("instruction memory failure\n");
+	return 0;
+      }
+    }
     
     //memory
     if(strcmp(cmd, "memory") == 0) {
