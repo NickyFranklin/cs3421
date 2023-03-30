@@ -228,13 +228,13 @@ void cpuDoCycleWork() {
       int immediate = ((cpu.command) & 255);
       cpu.ticks++;
       if(branchInst == BEQ) {
-	if(cpu.regs[sourceReg] != cpu.regs[targetReg] && cpu.ticks == 2) {
+	if(cpu.regs[sourceReg] != cpu.regs[targetReg]) {
 	  cpu.PC++;
 	  cpu.ticks = 0;
 	  cpu.moreWork = true;
 	}
 
-	if(cpu.regs[sourceReg] == cpu.regs[targetReg]) {
+	if(cpu.regs[sourceReg] == cpu.regs[targetReg] && cpu.ticks == 2) {
 	  cpu.PC = immediate;
 	  cpu.ticks = 0;
 	  cpu.moreWork = true;
@@ -242,13 +242,13 @@ void cpuDoCycleWork() {
       }
 
       else if(branchInst == BNEQ) {
-	if(cpu.regs[sourceReg] == cpu.regs[targetReg] && cpu.ticks == 2) {
+	if(cpu.regs[sourceReg] == cpu.regs[targetReg]) {
 	  cpu.PC++;
 	  cpu.ticks = 0;
 	  cpu.moreWork = true;
 	}
 	
-	if(cpu.regs[sourceReg] != cpu.regs[targetReg]) {
+	if(cpu.regs[sourceReg] != cpu.regs[targetReg] && cpu.ticks == 2) {
 	  cpu.PC = immediate;
 	  cpu.ticks = 0;
 	  cpu.moreWork = true;
@@ -257,13 +257,13 @@ void cpuDoCycleWork() {
       }
 
       else if(branchInst == BLT) {
-	if(cpu.regs[sourceReg] >= cpu.regs[targetReg] && cpu.ticks == 2) {
+	if(cpu.regs[sourceReg] >= cpu.regs[targetReg]) {
 	  cpu.PC++;
 	  cpu.ticks = 0;
 	  cpu.moreWork = true;
 	}
 	
-	if(cpu.regs[sourceReg] < cpu.regs[targetReg]) {
+	if(cpu.regs[sourceReg] < cpu.regs[targetReg] && cpu.ticks == 2) {
 	  cpu.PC = immediate;
 	  cpu.ticks = 0;
 	  cpu.moreWork = true;

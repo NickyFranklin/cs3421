@@ -7,6 +7,7 @@ enum {BEQ = 0, BNEQ = 1, BLT = 2} BranchInstruction;
 struct CPU {
   uint8_t regs[8];
   uint8_t PC;
+  uint32_t TC;
   bool hasBeenInitialized;
   enum {WAIT, FETCH, WORK, HALTED} state;
   uint32_t command;
