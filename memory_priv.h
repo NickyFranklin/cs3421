@@ -12,6 +12,7 @@ struct Memory {
   uint8_t *dataPtr;
   bool *memDonePtr;
   bool memDone;
+  uint8_t *validPtr;
 };
 
 static void create(int hexBytes);

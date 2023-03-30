@@ -30,12 +30,13 @@ void memStartFetch(unsigned int address, unsigned int count, uint8_t *dataPtr, b
   mem.memDonePtr = memDonePtr;
 }
 
-void memStartStore(unsigned int address, unsigned int count, uint8_t *dataPtr, bool *memDonePtr) {
+void memStartStore(unsigned int address, unsigned int count, uint8_t *dataPtr, bool *memDonePtr, uint8_t *validPtr) {
   mem.state = STORE;
   mem.dataPtr = dataPtr;
   mem.requestCount = count;
   mem.requestAddress = address;
   mem.memDonePtr = memDonePtr;
+  mem.validPtr = validPtr;
 }
 
 
@@ -57,7 +58,12 @@ void memDoCycleWork() {
   else if(mem.state == STORE) {
     mem.ticks = mem.ticks + 1;
     if(mem.ticks == 5) {
-      memcpy(mem.memIndex+mem.requestAddress, mem.dataPtr, mem.requestCount);
+      for(int i = 1; i <= mem.requestCount) {
+        if(*(mem.validPtr+(i-1)) == UPDATED) { 
+	  //This takes the memory address of the validPtr array and adds one to it each loop to get the next memory address for the next answer
+	  memcpy(mem.memIndex+mem.requestAddress, mem.dataPtr, 1);
+	}      
+      }
       mem.state = IDLE;
       *mem.memDonePtr = true;
       mem.ticks = 0;

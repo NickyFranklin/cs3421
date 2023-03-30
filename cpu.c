@@ -27,6 +27,7 @@ static void initCpu() {
   cpu.memDonePtr = &cpu.memDone;
   cpu.ticks = 0;
   cpu.moreWork = false;
+  cpu.coolPtr = UPDATED;
 }
 
 //makes a cpu for the parser
@@ -278,7 +279,7 @@ void cpuDoCycleWork() {
       int targetReg = ((cpu.command >> 8) & 7);
       int sourceReg = ((cpu.command >> 11) & 7);
       //figure out what goes in cpu.regs[] later
-      memStartStore(cpu.regs[targetReg], 1, &cpu.regs[sourceReg], &cpu.memDone);
+      memStartStore(cpu.regs[targetReg], 1, &cpu.regs[sourceReg], &cpu.memDone,       &cpu.coolPtr);
       cpu.state = WAIT;
       cpu.PC++;
       cpu.moreWork = false;

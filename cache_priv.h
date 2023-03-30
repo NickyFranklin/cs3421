@@ -8,6 +8,9 @@ struct Cache {
   uint8_t CLO;
   uint8_t dataInfo[8];
   bool isOn;
+  uint8_t *memPtr;
+  bool memDone;
+  bool *memDonePtr;
 }
 
 static void reset();
