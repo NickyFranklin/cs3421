@@ -35,7 +35,7 @@ static void off() {
 static void flush() {
   //When doing a read, set cpu data pointer to the spot in the cache where it should be
   //When the cache updates, the cpu data should change automatically with it
-  //When writing to memory, pass the validity pointers 
+  //When writing to memory, pass the validity pointers, change memory function based on count 
 }
 
 static void reset() {
@@ -51,7 +51,9 @@ bool cache_parse(FILE *infile) {
 }
 
 struct Cache getCache() {
-
+  struct Cache cache;
+  initCache();
+  return cache;
 }
 
 bool isFastCache(unsigned int address) {
