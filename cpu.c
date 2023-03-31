@@ -28,6 +28,7 @@ static void initCpu() {
   cpu.ticks = 0;
   cpu.moreWork = false;
   cpu.coolPtr = UPDATED;
+  cpu.TC = 0;
 }
 
 //makes a cpu for the parser
@@ -47,6 +48,7 @@ static void reset() {
   cpu.memDone = false;
   cpu.ticks = 0;
   cpu.moreWork = false;
+  cpu.TC = 0;
 }
 
 //Checks which register is being set and then updates it with the correct byte of data
@@ -101,6 +103,7 @@ void cpu_dump() {
   printf("RF: 0x%02X\n", cpu.regs[5]);
   printf("RG: 0x%02X\n", cpu.regs[6]);
   printf("RH: 0x%02X\n", cpu.regs[7]);
+  printf("TC: %d\n", cpu.TC);
   printf("\n");
 }
 

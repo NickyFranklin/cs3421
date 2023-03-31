@@ -35,9 +35,34 @@ static void off() {
 static void flush() {
   //When doing a read, set cpu data pointer to the spot in the cache where it should be
   //When the cache updates, the cpu data should change automatically with it
-  //When writing to memory, 
+  //When writing to memory, pass the validity pointers 
 }
 
-void cacheDoCycleWork() {
+static void reset() {
+
+}
+
+void cache_dump() {
+
+}
+
+bool cache_parse(FILE *infile) {
+
+}
+
+struct Cache getCache() {
+
+}
+
+bool isFastCache(unsigned int address) {
+  uint8_t calcCLO = address/8;
+  return calcCLO == cache.CLO
+}
+
+void cacheStore(unsigned int address, unsigned int count, uint8_t *dataPtr, bool *memDonePtr) {
+  
+}
+
+void cacheFetch(unsigned int address, unsigned int count, uint8_t *dataPtr, bool *memDonePtr) {
   
 }
