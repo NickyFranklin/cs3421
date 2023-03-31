@@ -159,6 +159,7 @@ void cpuDoCycleWork() {
     int instruction = ((cpu.command >> 17) & 7);
     
     if(instruction == ADD) {
+      cpu.TC++;
       int destReg = ((cpu.command >> 14) & 7);
       int sourceReg = ((cpu.command >> 11) & 7);
       int targetReg = ((cpu.command >> 8) & 7);
@@ -177,6 +178,7 @@ void cpuDoCycleWork() {
     }
     
     else if(instruction == ADDI) {
+      cpu.TC++;
       int destReg = ((cpu.command >> 14) & 7);
       int sourceReg = ((cpu.command >> 11) & 7);
       int immediate = ((cpu.command) & 255);
@@ -196,6 +198,7 @@ void cpuDoCycleWork() {
 
     else if(instruction == MUL) {
       cpu.ticks++;
+      cpu.TC++;
       if(cpu.ticks == 2) {
 	int destReg = ((cpu.command >> 14) & 7);
 	int sourceReg = ((cpu.command >> 11) & 7);
@@ -218,6 +221,7 @@ void cpuDoCycleWork() {
     }
 
     else if(instruction == INV) {
+      cpu.TC++;
       int destReg = ((cpu.command >> 14) & 7);
       int sourceReg = ((cpu.command >> 11) & 7);
       cpu.regs[destReg] = ~cpu.regs[sourceReg];
@@ -229,6 +233,7 @@ void cpuDoCycleWork() {
       int branchInst = ((cpu.command >> 14) & 7);
       int sourceReg = ((cpu.command >> 11) & 7);
       int targetReg = ((cpu.command >> 8) & 7);
+      cpu.TC++;
       int immediate = ((cpu.command) & 255);
       cpu.ticks++;
       if(branchInst == BEQ) {
@@ -279,6 +284,7 @@ void cpuDoCycleWork() {
     }
 
     else if(instruction == SW) {
+      cpu.TC++;
       int targetReg = ((cpu.command >> 8) & 7);
       int sourceReg = ((cpu.command >> 11) & 7);
       //figure out what goes in cpu.regs[] later
@@ -289,6 +295,7 @@ void cpuDoCycleWork() {
     }
 
     else if(instruction == LW) {
+      cpu.TC++;
       int targetReg = ((cpu.command >> 8) & 7);
       int destinationReg = ((cpu.command >> 14) & 7);  
       memStartFetch(cpu.regs[targetReg], 1, &cpu.regs[destinationReg], &cpu.memDone);
@@ -298,6 +305,7 @@ void cpuDoCycleWork() {
     }
 
     else if(instruction == HALT) {
+      cpu.TC++;
       cpu.state = HALTED;
       cpu.PC++;
       cpu.moreWork = false;
