@@ -39,11 +39,51 @@ static void flush() {
 }
 
 static void reset() {
-
+  cache.CLO = 0;
+  for(int i = 0; i < 8; i++) {
+    cache.dataInfo[i] = INVALID
+  }
+  cache.isOn = false;
 }
 
 void cache_dump() {
+  printf("CLO        : 0x%02X\n", cache.CLO);
+  printf("cache data :");
+  for(int i = 0; i < 8; i++) {
+    printf(" 0x%02X", cache.data[i]);
+  }
+  printf("\nFlags      :");
 
+  switch(cache.dataInfo[0]) {
+  case VALID:
+    printf("   V");
+    break;
+    
+  case INVALID:
+    printf("   I");
+    break;
+    
+  case UPDATED:
+    printf("   W");
+    break;
+  } 
+      
+  for(int i = 1; i < 8; i++) {
+    switch(cache.dataInfo[i]) {
+    case VALID:
+      printf("    V");
+      break;
+      
+    case INVALID:
+      printf("    I");
+      break;
+    
+    case UPDATED:
+      printf("    W");
+      break;
+    } 
+  }
+  
 }
 
 bool cache_parse(FILE *infile) {
