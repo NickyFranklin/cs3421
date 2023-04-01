@@ -142,12 +142,13 @@ void cacheStore(unsigned int address, unsigned int count, uint8_t *dataPtr, bool
   uint8_t calcCLO = address/8;
   cache.requestAddress = address;
   //Easy Logic
-  if(isFastCache(address)) {
+  if(cache.CLO == calcCLO) {
     uint8_t newAddress = address & 7;
 	memcpy(cache.data+newAddress, dataPtr, 1);
 	*(memDonePtr) = true;
 	cache.state = IDLE;
 	cache.ticks = 0;
+	cache.dataInfo[newAddress] = UPDATED;
   }
 
   //Hard logic :sob:
@@ -189,16 +190,13 @@ void cacheStore(unsigned int address, unsigned int count, uint8_t *dataPtr, bool
 		
 	}
 	
-	//This means data was invalid
-	else {
-		
-	}
   }
   
 }
 
 void cacheFetch(unsigned int address, unsigned int count, uint8_t *dataPtr, bool *memDonePtr) {
   uint8_t calcCLO = address/8;
+  cache.requestAddress = address;
   if(isFastCache(address)) {
     //Gets offset in cache memory
     uint8_t newAddress = address & 7;
@@ -208,7 +206,16 @@ void cacheFetch(unsigned int address, unsigned int count, uint8_t *dataPtr, bool
 	cache.ticks = 0;
   }
 
-  else if() {
+  //if the clo is right but the data is invalid
+  else if(calcCLO == cache.CLO) {
+	updateCache(cache.CLO, &cache.data[0], &cache.dataInfo[0]);
+	cache.state = MOVE;
+	cache.memDonePtr = memDonePtr;
+	cache.dataPtr = dataPtr;
+  }
+  
+  //if the clo is wrong
+  else if(calcCLO != cache.CLO) {
 	  
   }
 }
@@ -216,7 +223,7 @@ void cacheFetch(unsigned int address, unsigned int count, uint8_t *dataPtr, bool
 void cacheDoCycleWork() {
 	//Store after a flush
 	if(cache.state == STORE) {
-		cache.ticks = mem.ticks + 1;
+		cache.ticks = cache.ticks + 1;
 		if(cache.ticks == 5) {
 			if(cache.requestAddress != 0xFF) {
 				for(int i = 0; i < 8; i++) {
@@ -243,7 +250,13 @@ void cacheDoCycleWork() {
     }
 	
 	if(cache.state == MOVE) {
-		
+		cache.ticks++;
+		if(cache.ticks == 5) {
+			memcpy(cache.dataPtr, cache.data+newAddress, 1);
+			cache.state = IDLE;
+			*cache.memDonePtr = true;
+			cache.ticks = 0;
+		}
 	}
 	
 	

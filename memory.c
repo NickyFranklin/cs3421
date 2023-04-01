@@ -39,6 +39,13 @@ void memStartStore(unsigned int address, unsigned int count, uint8_t *dataPtr, b
   mem.memDonePtr = memDonePtr;
 }
 
+void updateCache(uint8_t CLO, uint8_t *dataPtr, uint8_t *validPtr) {
+	mem.requestAddress = CLO * 8;
+	mem.dataPtr = dataPtr;
+	mem.validPtr = validPtr;
+	mem.state = UPDATECACHE;
+}
+
 void memFlush(uint8_t CLO, uint8_t *dataPtr, uint8_t *validPtr) {
 	mem.requestAddress = CLO * 8;
 	mem.dataPtr = dataPtr;
@@ -49,6 +56,22 @@ void memFlush(uint8_t CLO, uint8_t *dataPtr, uint8_t *validPtr) {
 void memDoCycleWork() {
   if(mem.state == IDLE) {
     //do nothing
+  }
+  
+  else if(mem.state == UPDATECACHE) {
+	mem.ticks = mem.ticks + 1;
+	if(mem.ticks == 5) {
+		uint8_t newAddress = mem.requestAddress;
+		for(int i = 0; i < 8; i++) {
+			if(*(mem.validPtr+i) != UPDATED) {
+				newAddress = mem.requestAddress + i;
+				memcpy(mem.dataPtr+i, mem.memIndex+newAddress, 1);
+				*(mem.validPtr+i) = VALID;
+			}
+		}
+		mem.state = IDLE;
+        mem.ticks = 0;
+	}
   }
   
   else if(mem.state == FLUSH) {
