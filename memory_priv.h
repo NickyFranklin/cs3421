@@ -13,6 +13,7 @@ struct Memory {
   bool *memDonePtr;
   bool memDone;
   uint8_t *validPtr;
+  uint8_t *cachePtr;
 };
 
 static void create(int hexBytes);

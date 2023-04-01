@@ -11,6 +11,7 @@ struct Cache {
   uint8_t *memPtr;
   bool memDone;
   bool *memDonePtr;
+  enum {IDLE, MOVE, STORE} state;
 }
 
 static void reset();

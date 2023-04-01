@@ -21,6 +21,8 @@ static void initCache() {
     cache.data[i] = 0;
     cache.dataInfo[i] = INVALID;
   }
+  cache.state = IDLE;
+  cache.ticks = 0;
 }
 
 static void on() {
@@ -44,6 +46,12 @@ static void reset() {
     cache.dataInfo[i] = INVALID
   }
   cache.isOn = false;
+  cache.state = IDLE;
+  cache.ticks = 0;
+}
+
+bool getCacheStatus() {
+  return cache.isOn;
 }
 
 void cache_dump() {
@@ -121,7 +129,13 @@ struct Cache getCache() {
 
 bool isFastCache(unsigned int address) {
   uint8_t calcCLO = address/8;
-  return calcCLO == cache.CLO
+  uint8_t newAddress = address & 7;
+  if(cache.CLO == calcCLO && cache.dataInfo[newAddress] != invalid) {
+    return true;
+  }
+  else {
+    return false;
+  }
 }
 
 void cacheStore(unsigned int address, unsigned int count, uint8_t *dataPtr, bool *memDonePtr) {
@@ -132,32 +146,25 @@ void cacheStore(unsigned int address, unsigned int count, uint8_t *dataPtr, bool
 
   //Hard logic :sob:
   else {
-
+	
   }
   
 }
 
 void cacheFetch(unsigned int address, unsigned int count, uint8_t *dataPtr, bool *memDonePtr) {
-  //easy logic
+  uint8_t calcCLO = address/8;
   if(isFastCache(address)) {
     //Gets offset in cache memory
-    address = address & 7;
-    //Need to figure out a way to get the dataptr to change after a cache miss
-    //Could Change CPU to check if wait came from cache
-    *dataPtr = cache.data[address];
-    if(cache.dataInfo[address] != INVALID) {
-      memcpy(dataPtr, cache.data+address, count);
-      *(memDonePtr) = true;
-    }
-
-    else {
-      //Hard logic
-    }
+    uint8_t newAddress = address & 7;
+    memcpy(dataPtr, cache.data+newAddress, count);
+    *(memDonePtr) = true;
   }
 
-  //hard logic
-  else {
-    
+  else if() {
+	  
   }
-  
+}
+
+void cacheDoCycleWork() {
+	
 }

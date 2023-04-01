@@ -11,9 +11,10 @@ extern struct Clock clock;
 extern struct CPU cpu;
 extern struct Memory mem;
 extern struct InstMemory instMem;
+extern struct Cache cache;
 
 //Fetches data from memory for the cpu
-void memStartFetch(unsigned int address, unsigned int count, uint8_t *dataPtr, bool *memDonePtr) {
+void memStartFetch(unsigned int address, unsigned int count, uint8_t *dataPtr, bool *memDonePtr, uint8_t *cachePtr) {
   /*
   if (1 == count) {
     *dataPtr = mem.memIndex[address];
@@ -30,7 +31,7 @@ void memStartFetch(unsigned int address, unsigned int count, uint8_t *dataPtr, b
   mem.memDonePtr = memDonePtr;
 }
 
-void memStartStore(unsigned int address, unsigned int count, uint8_t *dataPtr, bool *memDonePtr, uint8_t *validPtr) {
+void memStartStore(unsigned int address, unsigned int count, uint8_t *dataPtr, bool *memDonePtr) {
   mem.state = STORE;
   mem.dataPtr = dataPtr;
   mem.requestCount = count;
@@ -45,13 +46,25 @@ void memDoCycleWork() {
     //do nothing
   }
   
+  else if(mem.state == FLUSH) {
+	
+  }
+  
   else if(mem.state == MOVE) {
     mem.ticks = mem.ticks + 1;
     if(mem.ticks == 5) {
-      memcpy(mem.dataPtr, mem.memIndex+mem.requestAddress, mem.requestCount);
-      mem.state = IDLE;
-      *(mem.memDonePtr) = true;
-      mem.ticks = 0;
+      if(mem.requestCount == 1) {
+		memcpy(mem.dataPtr, mem.memIndex+mem.requestAddress, mem.requestCount);
+		mem.state = IDLE;
+		*(mem.memDonePtr) = true;
+		mem.ticks = 0;
+	  }
+	  /*
+	  else {
+		uint8_t newAddress = mem.requestAddress & 7;
+		
+	  }
+	  */
     }
   }
 

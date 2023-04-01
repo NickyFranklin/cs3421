@@ -288,7 +288,13 @@ void cpuDoCycleWork() {
       int targetReg = ((cpu.command >> 8) & 7);
       int sourceReg = ((cpu.command >> 11) & 7);
       //figure out what goes in cpu.regs[] later
-      memStartStore(cpu.regs[targetReg], 1, &cpu.regs[sourceReg], &cpu.memDone,       &cpu.coolPtr);
+      if(getCacheStatus()) {
+	cacheStore(cpu.regs[targetReg], 1, &cpu.regs[sourceReg], &cpu.memDone);
+      }
+      
+      else {
+	memStartStore(cpu.regs[targetReg], 1, &cpu.regs[sourceReg], &cpu.memDone);
+      }
       cpu.state = WAIT;
       cpu.PC++;
       cpu.moreWork = false;
@@ -298,7 +304,13 @@ void cpuDoCycleWork() {
       cpu.TC++;
       int targetReg = ((cpu.command >> 8) & 7);
       int destinationReg = ((cpu.command >> 14) & 7);  
-      memStartFetch(cpu.regs[targetReg], 1, &cpu.regs[destinationReg], &cpu.memDone);
+      if(getCacheStatus()) {
+	cacheFetch(cpu.regs[targetReg], 1, &cpu.regs[destinationReg], &cpu.memDone);
+      }
+      
+      else {
+	memStartFetch(cpu.regs[targetReg], 1, &cpu.regs[destinationReg], &cpu.memDone);
+      }
       cpu.state = WAIT;
       cpu.PC++;
       cpu.moreWork = false;

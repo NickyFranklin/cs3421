@@ -16,7 +16,6 @@ struct CPU {
   bool *memDonePtr;
   int ticks;
   bool moreWork;
-  uint8_t coolPtr;
 };
 
 static void reset();

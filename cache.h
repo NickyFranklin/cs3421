@@ -7,7 +7,7 @@ bool cache_parse(FILE *infile);
 struct Cache getCache();
 bool isFastCache(unsigned int address);
 void cacheStore(unsigned int address, unsigned int count, uint8_t *dataPtr, bool *memDonePtr);
-
+bool getCacheStatus();
 void cacheFetch(unsigned int address, unsigned int count, uint8_t *dataPtr, bool *memDonePtr);
 
 #endif
