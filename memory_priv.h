@@ -5,7 +5,7 @@
 struct Memory {
   int size;
   uint8_t *memIndex;
-  enum {IDLE, MOVE, STORE} state;
+  enum {IDLE, MOVE, STORE, FLUSH} state;
   int ticks;
   unsigned int requestAddress;
   unsigned int requestCount;

@@ -37,9 +37,14 @@ void memStartStore(unsigned int address, unsigned int count, uint8_t *dataPtr, b
   mem.requestCount = count;
   mem.requestAddress = address;
   mem.memDonePtr = memDonePtr;
-  mem.validPtr = validPtr;
 }
 
+void memFlush(uint8_t CLO, uint8_t *dataPtr, uint8_t *validPtr) {
+	mem.requestAddress = CLO * 8;
+	mem.dataPtr = dataPtr;
+	mem.validPtr = validPtr;
+	mem.state = FLUSH;
+}
 
 void memDoCycleWork() {
   if(mem.state == IDLE) {
@@ -47,18 +52,29 @@ void memDoCycleWork() {
   }
   
   else if(mem.state == FLUSH) {
-	
+	mem.ticks = mem.ticks + 1;
+	if(mem.ticks == 5) {
+		uint8_t newAddress = mem.requestAddress;
+		for(int i = 0; i < 8; i++) {
+			if(*(mem.validPtr+i) == UPDATED) {
+				newAddress = mem.requestAddress + i;
+				memcpy(mem.memIndex+newAddress, mem.dataPtr+i, 1);
+			}
+		}
+	    mem.state = IDLE;
+        mem.ticks = 0;
+	}
   }
   
   else if(mem.state == MOVE) {
     mem.ticks = mem.ticks + 1;
     if(mem.ticks == 5) {
-      if(mem.requestCount == 1) {
+      //if(mem.requestCount == 1) {
 		memcpy(mem.dataPtr, mem.memIndex+mem.requestAddress, mem.requestCount);
 		mem.state = IDLE;
 		*(mem.memDonePtr) = true;
 		mem.ticks = 0;
-	  }
+	  //}
 	  /*
 	  else {
 		uint8_t newAddress = mem.requestAddress & 7;
@@ -71,12 +87,12 @@ void memDoCycleWork() {
   else if(mem.state == STORE) {
     mem.ticks = mem.ticks + 1;
     if(mem.ticks == 5) {
-      for(int i = 1; i <= mem.requestCount) {
-        if(*(mem.validPtr+(i-1)) == UPDATED) { 
+      //for(int i = 1; i <= mem.requestCount) {
+        //if(*(mem.validPtr+(i-1)) == UPDATED) { 
 	  //This takes the memory address of the validPtr array and adds one to it each loop to get the next memory address for the next answer
 	  memcpy(mem.memIndex+mem.requestAddress, mem.dataPtr, 1);
-	}      
-      }
+	//}      
+      //}
       mem.state = IDLE;
       *mem.memDonePtr = true;
       mem.ticks = 0;

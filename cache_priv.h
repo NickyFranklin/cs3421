@@ -12,6 +12,9 @@ struct Cache {
   bool memDone;
   bool *memDonePtr;
   enum {IDLE, MOVE, STORE} state;
+  int ticks;
+  uint8_t *dataPtr;
+  uint8_t requestAddress;
 }
 
 static void reset();

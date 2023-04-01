@@ -139,14 +139,60 @@ bool isFastCache(unsigned int address) {
 }
 
 void cacheStore(unsigned int address, unsigned int count, uint8_t *dataPtr, bool *memDonePtr) {
+  uint8_t calcCLO = address/8;
+  cache.requestAddress = address;
   //Easy Logic
   if(isFastCache(address)) {
-    
+    uint8_t newAddress = address & 7;
+	memcpy(cache.data+newAddress, dataPtr, 1);
+	*(memDonePtr) = true;
+	cache.state = IDLE;
+	cache.ticks = 0;
   }
 
   //Hard logic :sob:
   else {
+	if(calcCLO != cache.CLO) {
+		bool updatedValues = false;
+		for(int i = 0; i < 8; i++) {
+			if(cache.dataInfo[i] == UPDATED) {
+				updatedValues= true;
+			}
+		}
+		
+		//If there are values that need to be flushed
+		if(updatedValues == true) {
+			//memFlush will take the CLO data and store the eight bytes in the appropriate areas
+			memFlush(cache.CLO, &cache.data[0], &cache.dataInfo[0]);
+			//Store state will be relevant in docyclework where it will take five ticks and then add the data to the cache
+			
+			cache.state = STORE;
+			cache.memDonePtr = memDonePtr;
+			cache.dataPtr = dataPtr;
+			
+		}
+		
+		//if there are not values that need to be flushed
+		else {
+			if(cache.requestAddress != 0xFF) {
+				for(int i = 0; i < 8; i++) {
+					cache.dataInfo[i] = INVALID;
+				}
+				uint8_t newAddress = cache.requestAddress & 7;
+				memcpy(cache.data+newAddress, cache.dataPtr, 1);
+				cache.dataInfo[newAddress] = UPDATED;
+				*memDonePtr = true;
+				cache.CLO = calcCLO;
+			}
+
+		}
+		
+	}
 	
+	//This means data was invalid
+	else {
+		
+	}
   }
   
 }
@@ -158,6 +204,8 @@ void cacheFetch(unsigned int address, unsigned int count, uint8_t *dataPtr, bool
     uint8_t newAddress = address & 7;
     memcpy(dataPtr, cache.data+newAddress, count);
     *(memDonePtr) = true;
+	cache.state = IDLE;
+	cache.ticks = 0;
   }
 
   else if() {
@@ -166,5 +214,38 @@ void cacheFetch(unsigned int address, unsigned int count, uint8_t *dataPtr, bool
 }
 
 void cacheDoCycleWork() {
+	//Store after a flush
+	if(cache.state == STORE) {
+		cache.ticks = mem.ticks + 1;
+		if(cache.ticks == 5) {
+			if(cache.requestAddress != 0xFF) {
+				for(int i = 0; i < 8; i++) {
+					cache.dataInfo[i] = INVALID;
+				}
+				uint8_t newAddress = cache.requestAddress & 7;
+				memcpy(cache.data+newAddress, cache.dataPtr, 1);
+				cache.dataInfo[newAddress] = UPDATED;
+				cache.state = IDLE;
+				*cache.memDonePtr = true;
+				cache.ticks = 0;
+				cache.CLO = cache.requestAddress / 8;
+			}
+			
+			else {
+				for(int i = 0; i < 8; i++) {
+					cache.dataInfo[i] = VALID;
+				}
+				cache.state = IDLE;
+				*cache.memDonePtr = true;
+				cache.ticks = 0;
+			}
+		}
+    }
 	
+	if(cache.state == MOVE) {
+		
+	}
+	
+	
+  }
 }
