@@ -87,7 +87,30 @@ void cache_dump() {
 }
 
 bool cache_parse(FILE *infile) {
+  char str[20];
+  if(fscanf(infile, "%s", str) == 1) {
+    if(strcmp(str, "reset") == 0) {
+      reset();
+      return true;
+    }
 
+    if(strcmp(str, "off") == 0) {
+      off();
+      return true;
+    }
+
+    if(strcmp(str, "on") == 0) {
+      on();
+      return true;
+    }
+
+    if(strcmp(str, "dump") == 0) {
+      cache_dump();
+      return true;
+    }
+    
+  }
+  return false;
 }
 
 struct Cache getCache() {
@@ -102,9 +125,39 @@ bool isFastCache(unsigned int address) {
 }
 
 void cacheStore(unsigned int address, unsigned int count, uint8_t *dataPtr, bool *memDonePtr) {
+  //Easy Logic
+  if(isFastCache(address)) {
+    
+  }
+
+  //Hard logic :sob:
+  else {
+
+  }
   
 }
 
 void cacheFetch(unsigned int address, unsigned int count, uint8_t *dataPtr, bool *memDonePtr) {
+  //easy logic
+  if(isFastCache(address)) {
+    //Gets offset in cache memory
+    address = address & 7;
+    //Need to figure out a way to get the dataptr to change after a cache miss
+    //Could Change CPU to check if wait came from cache
+    *dataPtr = cache.data[address];
+    if(cache.dataInfo[address] != INVALID) {
+      memcpy(dataPtr, cache.data+address, count);
+      *(memDonePtr) = true;
+    }
+
+    else {
+      //Hard logic
+    }
+  }
+
+  //hard logic
+  else {
+    
+  }
   
 }

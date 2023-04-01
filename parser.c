@@ -11,10 +11,12 @@
 #include "clock_priv.h"
 #include "priv_instruct_mem.h"
 #include "instruct_mem.h"
+#include "cache.h"
+#include "cache_priv.h"
 /*
 Name: Nicky Franklin
 Class: CS3421
-Date last modified: 1-20-2023
+Date last modified: 4-1-2023
 Description: This program is a basic emulator of a clock, a cpu, and memory.
 The program takes in values from a file and parses those values to execute certain commands.
 Commands will then be sent to the corresponding device to do what ever functions that are to be parsed.
@@ -22,12 +24,15 @@ Device so far include:
 CPU: setReg, dump, reset
 Memory: set, dump, reset, create
 Clock: tick, dump, reset
+Instruction Memory:
+Cahche:
  */
 //Declares Global variables
 struct CPU cpu;
 struct Memory mem;
 struct Clock clock;
 struct InstMemory instMem;
+struct Cache cache;
 
 int main(int argc, char* argv[]) {
   //If a file name is not given, then it will not continue
@@ -74,6 +79,15 @@ int main(int argc, char* argv[]) {
       success = instMem_parse(infile);
       if(!success) {
 	printf("instruction memory failure\n");
+	return 0;
+      }
+    }
+
+    //Cache
+    if(strcmp(cmd, "cache") == 0) {
+      success = cache_parse(infile);
+      if(!success) {
+	printf("cache failure\n");
 	return 0;
       }
     }
