@@ -5,7 +5,7 @@
 #include "memory_priv.h"
 #include "memory.h"
 #include <string.h>
-
+#include "cache.h"
 //Declares globals from outside the file
 extern struct Clock clock;
 extern struct CPU cpu;
@@ -14,7 +14,7 @@ extern struct InstMemory instMem;
 extern struct Cache cache;
 
 //Fetches data from memory for the cpu
-void memStartFetch(unsigned int address, unsigned int count, uint8_t *dataPtr, bool *memDonePtr, uint8_t *cachePtr) {
+void memStartFetch(unsigned int address, unsigned int count, uint8_t *dataPtr, bool *memDonePtr) {
   /*
   if (1 == count) {
     *dataPtr = mem.memIndex[address];
@@ -53,10 +53,44 @@ void memFlush(uint8_t CLO, uint8_t *dataPtr, uint8_t *validPtr) {
 	mem.state = FLUSH;
 }
 
+void cacheMove(uint8_t CLO, uint8_t *dataPtr, uint8_t *validPtr, uint8_t oldCLO) {
+	mem.requestAddress = CLO * 8;
+	mem.dataPtr = dataPtr;
+	mem.validPtr = validPtr;
+	mem.state = CACHEMOVE;
+	mem.requestAddress2 = oldCLO;
+}
+
 void memDoCycleWork() {
   if(mem.state == IDLE) {
     //do nothing
   }
+  
+  else if(mem.state == CACHEMOVE) {
+	mem.ticks = mem.ticks + 1;
+	if(mem.ticks == 5) {
+		uint8_t newAddress = mem.requestAddress2;
+		//Writes stuff to memory before reading new stuff from memory
+		for(int i = 0; i < 8; i++) {
+			if(*(mem.validPtr+i) != INVALID) {
+				newAddress = mem.requestAddress2 + i;
+				memcpy(mem.memIndex+newAddress, mem.dataPtr+i, 1);
+			}
+		}
+		
+		newAddress = mem.requestAddress;
+		//Writes stuff to memory before reading new stuff from memory
+		for(int i = 0; i < 8; i++) {
+			newAddress = mem.requestAddress + i;
+			memcpy(mem.dataPtr+i, mem.memIndex+newAddress, 1);
+			*(mem.validPtr+i) = VALID;
+		}
+		
+		mem.state = IDLE;
+        mem.ticks = 0;
+	}
+  }
+  
   
   else if(mem.state == UPDATECACHE) {
 	mem.ticks = mem.ticks + 1;

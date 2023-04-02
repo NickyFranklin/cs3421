@@ -12,5 +12,9 @@ void memStartStore(unsigned int address, unsigned int count, uint8_t *dataPtr, b
 void memDoCycleWork();
 void memStartTick();
 bool memIsMoreCycleWorkNeeded();
+void memFlush(uint8_t CLO, uint8_t *dataPtr, uint8_t *validPtr);
+void cacheMove(uint8_t CLO, uint8_t *dataPtr, uint8_t *validPtr, uint8_t oldCLO);
+void updateCache(uint8_t CLO, uint8_t *dataPtr, uint8_t *validPtr);
+
 
 #endif

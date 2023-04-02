@@ -8,12 +8,14 @@
 #include "cpu.h"
 #include "instruct_mem.h"
 #include "memory.h"
+#include "cache.h"
 
 //Declares globals from outside the file
 extern struct Clock clock;
 extern struct CPU cpu;
 extern struct Memory mem;
 extern struct InstMemory instMem;
+extern struct Cache cache;
 
 //Initializes clock by setting counter to 0
 static void initClock() {

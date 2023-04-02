@@ -13,6 +13,7 @@ extern struct Clock clock;
 extern struct CPU cpu;
 extern struct Memory mem;
 extern struct InstMemory instMem;
+extern struct Cache cache;
 
 //initializes the cpu and everything to 0
 static void initCpu() {
@@ -27,7 +28,6 @@ static void initCpu() {
   cpu.memDonePtr = &cpu.memDone;
   cpu.ticks = 0;
   cpu.moreWork = false;
-  cpu.coolPtr = UPDATED;
   cpu.TC = 0;
 }
 
@@ -141,7 +141,8 @@ bool cpu_parse(FILE *infile) {
 
 void cpuDoCycleWork() {
   if(cpu.state == WAIT) {
-    if(cpu.memDone == true) {
+    cpu.TC++;
+	if(cpu.memDone == true) {
       if(cpu.state != HALT) {
 	cpu.state = FETCH;
       }
@@ -289,11 +290,11 @@ void cpuDoCycleWork() {
       int sourceReg = ((cpu.command >> 11) & 7);
       //figure out what goes in cpu.regs[] later
       if(getCacheStatus()) {
-	cacheStore(cpu.regs[targetReg], 1, &cpu.regs[sourceReg], &cpu.memDone);
+		cacheStore(cpu.regs[targetReg], 1, &cpu.regs[sourceReg], &cpu.memDone);
       }
       
       else {
-	memStartStore(cpu.regs[targetReg], 1, &cpu.regs[sourceReg], &cpu.memDone);
+		memStartStore(cpu.regs[targetReg], 1, &cpu.regs[sourceReg], &cpu.memDone);
       }
       cpu.state = WAIT;
       cpu.PC++;
@@ -305,11 +306,11 @@ void cpuDoCycleWork() {
       int targetReg = ((cpu.command >> 8) & 7);
       int destinationReg = ((cpu.command >> 14) & 7);  
       if(getCacheStatus()) {
-	cacheFetch(cpu.regs[targetReg], 1, &cpu.regs[destinationReg], &cpu.memDone);
+		cacheFetch(cpu.regs[targetReg], 1, &cpu.regs[destinationReg], &cpu.memDone);
       }
       
       else {
-	memStartFetch(cpu.regs[targetReg], 1, &cpu.regs[destinationReg], &cpu.memDone);
+		memStartFetch(cpu.regs[targetReg], 1, &cpu.regs[destinationReg], &cpu.memDone);
       }
       cpu.state = WAIT;
       cpu.PC++;

@@ -1,7 +1,6 @@
 #ifndef CACHE_PRIV_H_INCLUDED
 #define CACHE_PRIV_H_INCLUDED
 #include <stdbool.h>
-enum {VALID, INVALID, UPDATED} dataStatus;
 
 struct Cache {
   uint8_t data[8];
@@ -11,11 +10,11 @@ struct Cache {
   uint8_t *memPtr;
   bool memDone;
   bool *memDonePtr;
-  enum {IDLE, MOVE, STORE} state;
+  enum {IDLE2, MOVE2, STORE2} cacheState;
   int ticks;
   uint8_t *dataPtr;
   uint8_t requestAddress;
-}
+};
 
 static void reset();
 static void initCache();

@@ -5,9 +5,10 @@
 struct Memory {
   int size;
   uint8_t *memIndex;
-  enum {IDLE, MOVE, STORE, FLUSH, UPDATECACHE} state;
+  enum {IDLE, MOVE, STORE, FLUSH, UPDATECACHE, CACHEMOVE} state;
   int ticks;
   unsigned int requestAddress;
+  unsigned int requestAddress2;
   unsigned int requestCount;
   uint8_t *dataPtr;
   bool *memDonePtr;

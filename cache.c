@@ -21,7 +21,7 @@ static void initCache() {
     cache.data[i] = 0;
     cache.dataInfo[i] = INVALID;
   }
-  cache.state = IDLE;
+  cache.cacheState = IDLE2;
   cache.ticks = 0;
 }
 
@@ -31,22 +31,17 @@ static void on() {
 
 static void off() {
   cache.isOn = false;
-  cache.flush();
-}
-
-static void flush() {
-  //When doing a read, set cpu data pointer to the spot in the cache where it should be
-  //When the cache updates, the cpu data should change automatically with it
-  //When writing to memory, pass the validity pointers, change memory function based on count 
+  //This will cause a bug if you don't wait at least 5 ticks until you edit memory again
+  memFlush(cache.CLO, &cache.data[0], &cache.dataInfo[0]);
 }
 
 static void reset() {
   cache.CLO = 0;
   for(int i = 0; i < 8; i++) {
-    cache.dataInfo[i] = INVALID
+    cache.dataInfo[i] = INVALID;
   }
   cache.isOn = false;
-  cache.state = IDLE;
+  cache.cacheState = IDLE2;
   cache.ticks = 0;
 }
 
@@ -91,7 +86,7 @@ void cache_dump() {
       break;
     } 
   }
-  
+  printf("\n");
 }
 
 bool cache_parse(FILE *infile) {
@@ -130,7 +125,7 @@ struct Cache getCache() {
 bool isFastCache(unsigned int address) {
   uint8_t calcCLO = address/8;
   uint8_t newAddress = address & 7;
-  if(cache.CLO == calcCLO && cache.dataInfo[newAddress] != invalid) {
+  if(cache.CLO == calcCLO && cache.dataInfo[newAddress] != INVALID) {
     return true;
   }
   else {
@@ -146,7 +141,7 @@ void cacheStore(unsigned int address, unsigned int count, uint8_t *dataPtr, bool
     uint8_t newAddress = address & 7;
 	memcpy(cache.data+newAddress, dataPtr, 1);
 	*(memDonePtr) = true;
-	cache.state = IDLE;
+	cache.cacheState = IDLE2;
 	cache.ticks = 0;
 	cache.dataInfo[newAddress] = UPDATED;
   }
@@ -167,7 +162,7 @@ void cacheStore(unsigned int address, unsigned int count, uint8_t *dataPtr, bool
 			memFlush(cache.CLO, &cache.data[0], &cache.dataInfo[0]);
 			//Store state will be relevant in docyclework where it will take five ticks and then add the data to the cache
 			
-			cache.state = STORE;
+			cache.cacheState = STORE2;
 			cache.memDonePtr = memDonePtr;
 			cache.dataPtr = dataPtr;
 			
@@ -197,32 +192,46 @@ void cacheStore(unsigned int address, unsigned int count, uint8_t *dataPtr, bool
 void cacheFetch(unsigned int address, unsigned int count, uint8_t *dataPtr, bool *memDonePtr) {
   uint8_t calcCLO = address/8;
   cache.requestAddress = address;
-  if(isFastCache(address)) {
+  if(address == 0xFF) {
+	for(int i = 0; i < 8; i++) {
+		cache.dataInfo[i] = INVALID;
+	}		
+	*(memDonePtr) = true;
+	cache.cacheState = IDLE2;
+	cache.ticks = 0;
+  }
+  
+  else if(isFastCache(address)) {
     //Gets offset in cache memory
     uint8_t newAddress = address & 7;
     memcpy(dataPtr, cache.data+newAddress, count);
     *(memDonePtr) = true;
-	cache.state = IDLE;
+	cache.cacheState = IDLE2;
 	cache.ticks = 0;
   }
 
   //if the clo is right but the data is invalid
   else if(calcCLO == cache.CLO) {
 	updateCache(cache.CLO, &cache.data[0], &cache.dataInfo[0]);
-	cache.state = MOVE;
+	cache.cacheState = MOVE2;
 	cache.memDonePtr = memDonePtr;
 	cache.dataPtr = dataPtr;
   }
   
   //if the clo is wrong
   else if(calcCLO != cache.CLO) {
-	  
+	uint8_t oldCLO = cache.CLO;
+	cache.CLO = calcCLO;
+	cacheMove(cache.CLO, &cache.data[0], &cache.dataInfo[0], oldCLO);
+	cache.cacheState = MOVE2;
+	cache.memDonePtr = memDonePtr;
+	cache.dataPtr = dataPtr;
   }
 }
 
 void cacheDoCycleWork() {
 	//Store after a flush
-	if(cache.state == STORE) {
+	if(cache.cacheState == STORE2) {
 		cache.ticks = cache.ticks + 1;
 		if(cache.ticks == 5) {
 			if(cache.requestAddress != 0xFF) {
@@ -232,7 +241,7 @@ void cacheDoCycleWork() {
 				uint8_t newAddress = cache.requestAddress & 7;
 				memcpy(cache.data+newAddress, cache.dataPtr, 1);
 				cache.dataInfo[newAddress] = UPDATED;
-				cache.state = IDLE;
+				cache.cacheState = IDLE2;
 				*cache.memDonePtr = true;
 				cache.ticks = 0;
 				cache.CLO = cache.requestAddress / 8;
@@ -242,18 +251,19 @@ void cacheDoCycleWork() {
 				for(int i = 0; i < 8; i++) {
 					cache.dataInfo[i] = VALID;
 				}
-				cache.state = IDLE;
+				cache.cacheState = IDLE2;
 				*cache.memDonePtr = true;
 				cache.ticks = 0;
 			}
 		}
     }
 	
-	if(cache.state == MOVE) {
+	if(cache.cacheState == MOVE2) {
 		cache.ticks++;
 		if(cache.ticks == 5) {
+			uint8_t newAddress = cache.requestAddress & 7;
 			memcpy(cache.dataPtr, cache.data+newAddress, 1);
-			cache.state = IDLE;
+			cache.cacheState = IDLE2;
 			*cache.memDonePtr = true;
 			cache.ticks = 0;
 		}
@@ -261,4 +271,3 @@ void cacheDoCycleWork() {
 	
 	
   }
-}
