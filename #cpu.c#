@@ -140,10 +140,9 @@ bool cpu_parse(FILE *infile) {
   return false;  
 }
 
-void cpuDoCycleWork() {
-  if(cpu.state != HALT) {
-    cpu.TC++;
+
   }
+  
   if(cpu.state == WAIT) {
     if(cpu.memDone == true) {
       if(cpu.state != HALT) {
