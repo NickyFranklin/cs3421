@@ -139,51 +139,53 @@ void cacheStore(unsigned int address, unsigned int count, uint8_t *dataPtr, bool
   //Easy Logic
   if(cache.CLO == calcCLO) {
     uint8_t newAddress = address & 7;
-	memcpy(cache.data+newAddress, dataPtr, 1);
-	*(memDonePtr) = true;
-	cache.cacheState = IDLE2;
-	cache.ticks = 0;
-	cache.dataInfo[newAddress] = UPDATED;
+    memcpy(cache.data+newAddress, dataPtr, 1);
+    *(memDonePtr) = true;
+    cache.cacheState = IDLE2;
+    cache.ticks = 0;
+    cache.dataInfo[newAddress] = UPDATED;
   }
-
+  
   //Hard logic :sob:
   else {
-	if(calcCLO != cache.CLO) {
-		bool updatedValues = false;
-		for(int i = 0; i < 8; i++) {
-			if(cache.dataInfo[i] == UPDATED) {
-				updatedValues= true;
-			}
-		}
-		
-		//If there are values that need to be flushed
-		if(updatedValues == true) {
-			//memFlush will take the CLO data and store the eight bytes in the appropriate areas
-			memFlush(cache.CLO, &cache.data[0], &cache.dataInfo[0]);
-			//Store state will be relevant in docyclework where it will take five ticks and then add the data to the cache
-			
-			cache.cacheState = STORE2;
-			cache.memDonePtr = memDonePtr;
-			cache.dataPtr = dataPtr;
-			
-		}
-		
-		//if there are not values that need to be flushed
-		else {
-			if(cache.requestAddress != 0xFF) {
-				for(int i = 0; i < 8; i++) {
-					cache.dataInfo[i] = INVALID;
-				}
-				uint8_t newAddress = cache.requestAddress & 7;
-				memcpy(cache.data+newAddress, cache.dataPtr, 1);
-				cache.dataInfo[newAddress] = UPDATED;
-				*memDonePtr = true;
-				cache.CLO = calcCLO;
-			}
-
-		}
-		
+    if(calcCLO != cache.CLO) {
+      bool updatedValues = false;
+      for(int i = 0; i < 8; i++) {
+	if(cache.dataInfo[i] == UPDATED) {
+	  updatedValues= true;
+	  printf("updated values\n");
 	}
+      }
+      
+      //If there are values that need to be flushed
+      if(updatedValues == true) {
+	//memFlush will take the CLO data and store the eight bytes in the appropriate areas
+	memFlush(cache.CLO, &cache.data[0], &cache.dataInfo[0]);
+	//Store state will be relevant in docyclework where it will take five ticks and then add the data to the cache
+	
+	cache.cacheState = STORE2;
+	cache.memDonePtr = memDonePtr;
+	cache.dataPtr = dataPtr;
+	
+      }
+      
+      //if there are not values that need to be flushed
+      else {
+	printf("gets to the cache write invalid\n");
+	if(cache.requestAddress != 0xFF) {
+	  for(int i = 0; i < 8; i++) {
+	    cache.dataInfo[i] = INVALID;
+	  }
+	  uint8_t newAddress = cache.requestAddress & 7;
+	  memcpy(cache.data+newAddress, cache.dataPtr, 1);
+	  cache.dataInfo[newAddress] = UPDATED;
+	  *memDonePtr = true;
+	  cache.CLO = calcCLO;
+	}
+	
+      }
+      
+    }
 	
   }
   

@@ -1,0 +1,39 @@
+; before execution, relevant memory is
+; Addr   00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F
+; 0x0000 01 02 03 04 05 06 07 08 00 00 00 00 00 00 00 00
+;
+; after execution, relevant memory is
+; Addr   00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F
+; 0x0000 08 07 06 05 04 03 02 01 00 00 00 00 00 00 00 00
+;
+; after execution, registers are
+; PC: 0x0E
+; RA: 0x03
+; RB: 0x04
+; RC: 0x03
+; RD: 0x03
+; RE: 0x06
+; RF: 0x00
+; RG: 0x00
+; RH: 0x00
+;
+addi $a $a 0        ; a = 0
+addi $b $b 7        ; b = 7
+addi $c $c 3        ; c = 3, 3 cycles for initialization
+.loop:
+lw $d $a            ; Load first half element $a into $d
+lw $e $b            ; Load second half element $b into $e
+sw $e $a            ; Store second half element into first half element location
+sw $d $b            ; Store first half element into second half element location (20 cycles for all memory operations)
+addi $a $a 1        ; a = a + 1
+inv $b $b           ; b = -b
+addi $b $b 1        ; b = -b + 1
+inv $b $b           ; b = -(-b + 1) = b - 1 (4 cycles for arithmetic)
+beq $a $c endloop   ; When a == c break (1 cycle, 1 cycle, 1 cycle, 2 cycles)
+beq $h $h loop      ; else goto .loop (2 cycles, 2 cycles, 2 cycles, 0 cycles)
+.endloop:
+halt
+; Total cycles required ~ 110
+; Note: Cache is not flushed so memory is not written to
+
+; Note as of 4/12/2023: Cache may be flushed, therefore we remove the memory dump in Sample 4 input and just grade flags

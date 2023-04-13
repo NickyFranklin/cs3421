@@ -109,18 +109,20 @@ void memDoCycleWork() {
   }
   
   else if(mem.state == FLUSH) {
-	mem.ticks = mem.ticks + 1;
-	if(mem.ticks == 5) {
-		uint8_t newAddress = mem.requestAddress;
-		for(int i = 0; i < 8; i++) {
-			if(*(mem.validPtr+i) == UPDATED) {
-				newAddress = mem.requestAddress + i;
-				memcpy(mem.memIndex+newAddress, mem.dataPtr+i, 1);
-			}
-		}
-	    mem.state = IDLE;
-        mem.ticks = 0;
+    mem.ticks = mem.ticks + 1;
+    printf("flushing\n");
+    if(mem.ticks == 5) {
+      uint8_t newAddress = mem.requestAddress;
+      for(int i = 0; i < 8; i++) {
+	printf("flush loop \n");
+	if(*(mem.validPtr+i) == UPDATED) {
+	  newAddress = mem.requestAddress + i;
+	  memcpy(mem.memIndex+newAddress, mem.dataPtr+i, 1);
 	}
+      }
+      mem.state = IDLE;
+      mem.ticks = 0;
+    }
   }
   
   else if(mem.state == MOVE) {
