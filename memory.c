@@ -58,7 +58,7 @@ void cacheMove(uint8_t CLO, uint8_t *dataPtr, uint8_t *validPtr, uint8_t oldCLO)
 	mem.dataPtr = dataPtr;
 	mem.validPtr = validPtr;
 	mem.state = CACHEMOVE;
-	mem.requestAddress2 = oldCLO;
+	mem.requestAddress2 = oldCLO * 8;
 }
 
 void memDoCycleWork() {
@@ -110,11 +110,9 @@ void memDoCycleWork() {
   
   else if(mem.state == FLUSH) {
     mem.ticks = mem.ticks + 1;
-    printf("flushing\n");
     if(mem.ticks == 5) {
       uint8_t newAddress = mem.requestAddress;
       for(int i = 0; i < 8; i++) {
-	printf("flush loop \n");
 	if(*(mem.validPtr+i) == UPDATED) {
 	  newAddress = mem.requestAddress + i;
 	  memcpy(mem.memIndex+newAddress, mem.dataPtr+i, 1);

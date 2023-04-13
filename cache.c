@@ -86,7 +86,7 @@ void cache_dump() {
       break;
     } 
   }
-  printf("\n");
+  printf("\n\n");
 }
 
 bool cache_parse(FILE *infile) {
@@ -153,7 +153,6 @@ void cacheStore(unsigned int address, unsigned int count, uint8_t *dataPtr, bool
       for(int i = 0; i < 8; i++) {
 	if(cache.dataInfo[i] == UPDATED) {
 	  updatedValues= true;
-	  printf("updated values\n");
 	}
       }
       
@@ -171,7 +170,6 @@ void cacheStore(unsigned int address, unsigned int count, uint8_t *dataPtr, bool
       
       //if there are not values that need to be flushed
       else {
-	printf("gets to the cache write invalid\n");
 	if(cache.requestAddress != 0xFF) {
 	  for(int i = 0; i < 8; i++) {
 	    cache.dataInfo[i] = INVALID;

@@ -15,7 +15,6 @@ cpu dump
 clock tick 16
 cache dump
 cpu dump
-clock tick 59
-cache dump
+clock tick 256
 memory dump 0x0 0x10
 cache off
