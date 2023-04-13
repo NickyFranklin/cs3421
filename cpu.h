@@ -8,6 +8,7 @@ void cpu_start_tick();
 void cpuDoCycleWork();
 bool cpuIsMoreCycleWork();
 struct CPU getCpu();
+uint16_t getCPUTick();
 
 #endif
 

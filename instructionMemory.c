@@ -10,6 +10,7 @@ extern struct Clock clock;
 extern struct CPU cpu;
 extern struct Memory mem;
 extern struct InstMemory instMem;
+extern struct IoDev iodev;
 
 struct InstMemory getInstMem() {
   struct InstMemory instMem;

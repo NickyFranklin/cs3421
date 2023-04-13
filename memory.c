@@ -6,12 +6,14 @@
 #include "memory.h"
 #include <string.h>
 #include "cache.h"
+#include "iodev.h"
 //Declares globals from outside the file
 extern struct Clock clock;
 extern struct CPU cpu;
 extern struct Memory mem;
 extern struct InstMemory instMem;
 extern struct Cache cache;
+extern struct IoDev iodev;
 
 //Fetches data from memory for the cpu
 void memStartFetch(unsigned int address, unsigned int count, uint8_t *dataPtr, bool *memDonePtr) {

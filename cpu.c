@@ -15,6 +15,7 @@ extern struct CPU cpu;
 extern struct Memory mem;
 extern struct InstMemory instMem;
 extern struct Cache cache;
+extern struct IoDev iodev;
 
 //initializes the cpu and everything to 0
 static void initCpu() {
@@ -331,6 +332,9 @@ void cpu_start_tick() {
   
 }
 
+uint16_t getCPUTick() {
+  return cpu.TC;
+}
 
 bool cpuIsMoreCycleWork() {
   return cpu.moreWork;

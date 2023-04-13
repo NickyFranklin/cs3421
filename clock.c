@@ -9,6 +9,7 @@
 #include "instruct_mem.h"
 #include "memory.h"
 #include "cache.h"
+#include "iodev.h"
 
 //Declares globals from outside the file
 extern struct Clock clock;
@@ -16,6 +17,7 @@ extern struct CPU cpu;
 extern struct Memory mem;
 extern struct InstMemory instMem;
 extern struct Cache cache;
+extern struct IoDev iodev;
 
 //Initializes clock by setting counter to 0
 static void initClock() {
@@ -41,6 +43,7 @@ static void tick(int ticks) {
     cpuDoCycleWork();
     memDoCycleWork();
 	cacheDoCycleWork();
+    IoDoCycleWork();
     /*
     while(cpuIsMoreCycleWork()) {
       cpuDoCycleWork();
