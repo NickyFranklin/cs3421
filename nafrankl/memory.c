@@ -6,12 +6,15 @@
 #include "memory.h"
 #include <string.h>
 #include "cache.h"
+#include "iodev.h"
+#include "cpu.h"
 //Declares globals from outside the file
 extern struct Clock clock;
 extern struct CPU cpu;
 extern struct Memory mem;
 extern struct InstMemory instMem;
 extern struct Cache cache;
+extern struct IoDev iodev;
 
 //Fetches data from memory for the cpu
 void memStartFetch(unsigned int address, unsigned int count, uint8_t *dataPtr, bool *memDonePtr) {
@@ -29,6 +32,7 @@ void memStartFetch(unsigned int address, unsigned int count, uint8_t *dataPtr, b
   mem.requestCount = count;
   mem.requestAddress = address;
   mem.memDonePtr = memDonePtr;
+  //printf("mem start fetch %d\n", getCPUTick());
 }
 
 void memStartStore(unsigned int address, unsigned int count, uint8_t *dataPtr, bool *memDonePtr) {
@@ -37,6 +41,7 @@ void memStartStore(unsigned int address, unsigned int count, uint8_t *dataPtr, b
   mem.requestCount = count;
   mem.requestAddress = address;
   mem.memDonePtr = memDonePtr;
+  //printf("mem start store %d\n", getCPUTick());
 }
 
 void updateCache(uint8_t CLO, uint8_t *dataPtr, uint8_t *validPtr) {
@@ -58,10 +63,11 @@ void cacheMove(uint8_t CLO, uint8_t *dataPtr, uint8_t *validPtr, uint8_t oldCLO)
 	mem.dataPtr = dataPtr;
 	mem.validPtr = validPtr;
 	mem.state = CACHEMOVE;
-	mem.requestAddress2 = oldCLO;
+	mem.requestAddress2 = oldCLO * 8;
 }
 
 void memDoCycleWork() {
+  //printf("gets to mem cycle work %d\n", getCPUTick());
   if(mem.state == IDLE) {
     //do nothing
   }
@@ -109,18 +115,18 @@ void memDoCycleWork() {
   }
   
   else if(mem.state == FLUSH) {
-	mem.ticks = mem.ticks + 1;
-	if(mem.ticks == 5) {
-		uint8_t newAddress = mem.requestAddress;
-		for(int i = 0; i < 8; i++) {
-			if(*(mem.validPtr+i) == UPDATED) {
-				newAddress = mem.requestAddress + i;
-				memcpy(mem.memIndex+newAddress, mem.dataPtr+i, 1);
-			}
-		}
-	    mem.state = IDLE;
-        mem.ticks = 0;
+    mem.ticks = mem.ticks + 1;
+    if(mem.ticks == 5) {
+      uint8_t newAddress = mem.requestAddress;
+      for(int i = 0; i < 8; i++) {
+	if(*(mem.validPtr+i) == UPDATED) {
+	  newAddress = mem.requestAddress + i;
+	  memcpy(mem.memIndex+newAddress, mem.dataPtr+i, 1);
 	}
+      }
+      mem.state = IDLE;
+      mem.ticks = 0;
+    }
   }
   
   else if(mem.state == MOVE) {

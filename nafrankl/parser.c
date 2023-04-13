@@ -13,6 +13,8 @@
 #include "instruct_mem.h"
 #include "cache.h"
 #include "cache_priv.h"
+#include "iodev.h"
+#include "iodev_priv.h"
 /*
 Name: Nicky Franklin
 Class: CS3421
@@ -33,6 +35,7 @@ struct Memory mem;
 struct Clock clock;
 struct InstMemory instMem;
 struct Cache cache;
+struct IoDev iodev;
 
 int main(int argc, char* argv[]) {
   //If a file name is not given, then it will not continue
@@ -43,6 +46,7 @@ int main(int argc, char* argv[]) {
   //Initializes variables
   clock = getClock();
   cpu = getCpu();
+  iodev = GetIo();
   FILE* infile;
   char* filename = argv[1];
   infile = fopen(filename, "r");
@@ -101,6 +105,13 @@ int main(int argc, char* argv[]) {
       }
     }
 
+    if(strcmp(cmd, "iodev") == 0) {
+      success = ioparse(infile);
+      if(!success) {
+	printf("io failure\n");
+	return 0;
+      }
+    }
     
   }
   return 0;
