@@ -5,5 +5,6 @@
 void clock_dump();
 bool clock_parse(FILE *infile);
 struct Clock getClock();
+int getClockTick();
 
 #endif

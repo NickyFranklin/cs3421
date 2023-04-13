@@ -7,6 +7,7 @@
 #include <string.h>
 #include "memory.h"
 #include "cpu.h"
+#include "clock.h"
 
 extern struct Clock clock;
 extern struct CPU cpu;
@@ -21,6 +22,7 @@ static void initIo() {
   iodev.ioState = INVALID5;
   iodev.address = 0;
   iodev.value = 55;
+  iodev.tick = 0;
 }
 
 struct IoDev GetIo() {
@@ -31,6 +33,7 @@ struct IoDev GetIo() {
 
 static void reset() {
   iodev.reg = 0;
+  iodev.tick = 0;
 }
 
 void iodump() {
@@ -94,11 +97,14 @@ static void fileReadNext() {
 }
 
 void IoDoCycleWork() {
-  uint16_t cpuTick = getCPUTick();
-  if(cpuTick == iodev.nextInstruction) {
+  iodev.tick++;
+  //printf("%d\n", iodev.tick);
+  if(iodev.tick == iodev.nextInstruction) {
     //come back here later if cpu is executing commands while iodev should be instead
+    
     switch(iodev.ioState) {
     case IOREAD:
+      //printf("gets here \n");
       memStartFetch(iodev.address, 1, &(iodev.reg), &(iodev.boolin));
       fileReadNext();
       break;

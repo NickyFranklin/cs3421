@@ -40,9 +40,10 @@ static void reset() {
 static void tick(int ticks) {
   clock.counter += ticks;
   for(int i = 0; i < ticks; i++) {
+    //printf("%d", clock.counter);
     cpuDoCycleWork();
     memDoCycleWork();
-	cacheDoCycleWork();
+    cacheDoCycleWork();
     IoDoCycleWork();
     /*
     while(cpuIsMoreCycleWork()) {
@@ -51,6 +52,10 @@ static void tick(int ticks) {
     }
     */
   }
+}
+
+int getClockTick() {
+ return clock.counter;
 }
 
 //Parses commands according to word

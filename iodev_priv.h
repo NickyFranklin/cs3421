@@ -9,6 +9,7 @@ struct IoDev {
   uint8_t value;
   FILE *file;
   bool boolin;
+  uint16_t tick;
 };
 
 static void reset();

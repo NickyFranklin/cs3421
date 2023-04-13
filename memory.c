@@ -7,6 +7,7 @@
 #include <string.h>
 #include "cache.h"
 #include "iodev.h"
+#include "cpu.h"
 //Declares globals from outside the file
 extern struct Clock clock;
 extern struct CPU cpu;
@@ -31,6 +32,7 @@ void memStartFetch(unsigned int address, unsigned int count, uint8_t *dataPtr, b
   mem.requestCount = count;
   mem.requestAddress = address;
   mem.memDonePtr = memDonePtr;
+  //printf("mem start fetch %d\n", getCPUTick());
 }
 
 void memStartStore(unsigned int address, unsigned int count, uint8_t *dataPtr, bool *memDonePtr) {
@@ -39,6 +41,7 @@ void memStartStore(unsigned int address, unsigned int count, uint8_t *dataPtr, b
   mem.requestCount = count;
   mem.requestAddress = address;
   mem.memDonePtr = memDonePtr;
+  //printf("mem start store %d\n", getCPUTick());
 }
 
 void updateCache(uint8_t CLO, uint8_t *dataPtr, uint8_t *validPtr) {
@@ -64,6 +67,7 @@ void cacheMove(uint8_t CLO, uint8_t *dataPtr, uint8_t *validPtr, uint8_t oldCLO)
 }
 
 void memDoCycleWork() {
+  //printf("gets to mem cycle work %d\n", getCPUTick());
   if(mem.state == IDLE) {
     //do nothing
   }

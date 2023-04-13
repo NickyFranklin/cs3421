@@ -244,13 +244,14 @@ void cacheDoCycleWork() {
 	cache.dataInfo[newAddress] = UPDATED;
 	cache.cacheState = IDLE2;
 	*cache.memDonePtr = true;
-	cache.ticks = 0;
+	cache.ticks = 0; 
 	cache.CLO = cache.requestAddress / 8;
       }
-      
       else {
 	for(int i = 0; i < 8; i++) {
-	  cache.dataInfo[i] = VALID;
+	  if(cache.dataInfo[i] == UPDATED) {
+	    cache.dataInfo[i] = VALID;
+	  }
 	}
 	cache.cacheState = IDLE2;
 	*cache.memDonePtr = true;

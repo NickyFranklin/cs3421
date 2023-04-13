@@ -31,6 +31,7 @@ static void initCpu() {
   cpu.ticks = 0;
   cpu.moreWork = false;
   cpu.TC = 0;
+  cpu.CoolTC = 0;
 }
 
 //makes a cpu for the parser
@@ -142,8 +143,14 @@ bool cpu_parse(FILE *infile) {
 }
 
 void cpuDoCycleWork() {
+  //if(cpu.state != HALTED) {
+  if(cpu.state == HALT) {
+    cpu.CoolTC++;
+    return;
+  }
   if(cpu.state != HALT) {
     cpu.TC++;
+    cpu.CoolTC++;
   }
   if(cpu.state == WAIT) {
     if(cpu.memDone == true) {
@@ -315,7 +322,7 @@ void cpuDoCycleWork() {
     }
 
     else if(instruction == HALT) {
-      cpu.state = HALTED;
+      cpu.state = HALT;
       cpu.PC++;
       cpu.moreWork = false;
     }
@@ -333,7 +340,7 @@ void cpu_start_tick() {
 }
 
 uint16_t getCPUTick() {
-  return cpu.TC;
+  return cpu.CoolTC;
 }
 
 bool cpuIsMoreCycleWork() {

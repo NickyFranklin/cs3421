@@ -13,7 +13,7 @@ clock tick 10
 memory dump 0x0 0x8
 cache dump
 iodev dump
-clock tick 50
+clock tick 30
 memory dump 0x0 0x8
 cache dump
 iodev dump
